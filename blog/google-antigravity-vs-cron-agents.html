@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google's Free Agent IDE Supports Claude. The Manager Surface Is What Interests Me. — fernandOS Digital</title>
+  <meta name="description" content="Google Antigravity launched free in public preview. It supports Claude Sonnet 4.5 and has async agent orchestration. Here's the honest comparison to a headless cron setup.">
+  <meta property="og:title" content="Google's Free Agent IDE Supports Claude. The Manager Surface Is What Interests Me. — fernandOS Digital">
+  <meta property="og:description" content="Google Antigravity launched free in public preview. It supports Claude Sonnet 4.5 and has async agent orchestration. Here's the honest comparison to a headless cron setup.">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Google's Free Agent IDE Supports Claude. The Manager Surface Is What Interests Me. — fernandOS Digital">
+  <meta name="twitter:description" content="Google Antigravity launched free in public preview. It supports Claude Sonnet 4.5 and has async agent orchestration. Here's the honest comparison to a headless cron setup.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-close {
+      position: absolute; top: 10px; right: 12px;
+      background: none; border: none;
+      color: var(--text-muted);
+      font-size: 16px; cursor: pointer;
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .sticky-cta-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--amber-bright);
+      text-transform: uppercase;
+    }
+
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 52px 0 20px;
+      color: var(--text);
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:last-child { margin-bottom: 0; }
+    .article-body strong {
+      color: var(--amber-bright);
+      font-weight: 600;
+    }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 24px;
+      color: var(--text);
+    }
+    .article-body li { margin-bottom: 8px; }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 14px;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 2px;
+      color: var(--amber-bright);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px;
+      overflow-x: auto;
+      margin: 32px 0;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 32px 0;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .comparison-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      color: var(--amber);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .comparison-table td {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+    .comparison-table tr:hover td { background: var(--bg-2); }
+    .win { color: var(--green); }
+    .neutral { color: var(--text-dim); }
+
+    .inline-cta {
+      background: var(--bg-2);
+      border: 1px solid var(--border-amber);
+      border-left: 3px solid var(--amber);
+      padding: 32px 36px;
+      margin: 64px 0 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+      .comparison-table { font-size: 11px; }
+      .comparison-table th, .comparison-table td { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Production AI</div>
+      <h1 class="article-title">Google's Free Agent IDE Supports Claude. The Manager Surface Is What Interests Me.</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>7 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>1,310 words</span>
+      </div>
+      <div class="article-byline">Google Antigravity hit public preview on February 27. It's free, supports Claude Sonnet 4.5, and has async agent orchestration. The gap between it and headless cron is one specific thing.</div>
+    </header>
+
+    <div class="article-body">
+
+<p>Google dropped Antigravity into public preview on February 27. Free for individuals, cross-platform, VS Code fork. The coverage focused on model optionality: you can run Gemini 3 Pro, Claude Sonnet 4.5, or GPT-OSS without paying for API access.</p>
+
+<p>What I hadn't seen anyone write about specifically: the Manager Surface. That's the part that's actually new for people building background agent systems.</p>
+
+<h2>What Antigravity Actually Is</h2>
+
+<p>Two interfaces in one tool. The Editor View is a standard AI-powered coding environment: tab completions, inline commands, the things you'd expect from a Cursor competitor. That part isn't interesting to me.</p>
+
+<p>The Manager Surface is different. It's a dedicated interface where you spawn agents, watch them work, and orchestrate multiple agents running asynchronously across different workspaces. You delegate a task. The agent plans it, executes it across your editor, terminal, and browser without you touching anything, and comes back with artifacts: screenshots, walkthroughs, a summary of what it did. You review. You move on.</p>
+
+<p>Multiple agents can run in parallel. You're not waiting for one to finish before the next starts. You're the manager, not the operator.</p>
+
+<p>This is the closest thing Google has shipped to what I've been running manually for the past year.</p>
+
+<h2>What I've Been Running</h2>
+
+<p>My setup has 10 agents on cron. Cron is a Linux scheduler — you tell it "run this at 6am every day" and it does. No IDE required. Nothing needs to be open. The machine is doing its thing whether I'm awake or not.</p>
+
+<p>At 6am, my morning briefing agent fires. It pulls my calendar for the day, checks unread email, reads my Telegram messages from overnight, checks weather, and writes a 4-paragraph summary to a markdown file. When I wake up and open the file, it's done. I never asked. I never typed a prompt. I didn't even know it was running.</p>
+
+<p>The other agents: memory consolidation at 6:15am, health check at 9am, email triage at 7am, pool chemistry monitoring when sensors post new readings. None of those are coding tasks. None of them touch GitHub. They're just things that need to happen and don't need my hands on them.</p>
+
+<p>Total cost: about $40 a month. All 10 agents, every day.</p>
+
+<h2>The Claude Sonnet 4.5 Detail</h2>
+
+<p>Antigravity supports Claude natively. Not a plugin. Anthropic is a listed model provider alongside Gemini. The public preview gives you Gemini 3 Pro with generous rate limits for free. Claude Sonnet 4.5 is available when you want it, which presumably means paying for API access or having your own key.</p>
+
+<p>For anyone in the Claude API ecosystem, this is significant. Google built an agent-first IDE where your existing Claude setup works. You don't have to choose between Google's tooling and Anthropic's models.</p>
+
+<p>If you've been building Claude-based agents and want a more structured environment to manage them visually, Antigravity is now a real option. That wasn't true six months ago.</p>
+
+<h2>Where Antigravity Is Better</h2>
+
+<p><strong>Tasks that require UI interaction.</strong> My cron agents are scoped to API calls, file reads, and structured data. They don't click through a browser. If I need an agent to fill out a form, scrape a page that requires JavaScript rendering, or verify that a UI change looks right, my setup needs extra tooling. Antigravity handles all of that natively. The agent moves across editor, terminal, and browser as one continuous task. That's a real capability gap.</p>
+
+<p><strong>Visual output.</strong> When Antigravity finishes a task, it sends back screenshots and walkthroughs as artifacts. My agents write text to markdown files. That's fine for data-heavy output. It doesn't work when "did it work" requires looking at something rendered. For UI work, the artifact model is genuinely better.</p>
+
+<p><strong>Zero setup for model access.</strong> Antigravity gives you Gemini 3 Pro with no API key in the public preview. If you're just starting out, not having to create an Anthropic account, generate a key, and wire up billing is real friction removed. The on-ramp is faster.</p>
+
+<p><strong>Parallel agent management in a UI.</strong> Running multiple agents simultaneously in my setup requires multiple cron processes and coordination logic to avoid conflicts on shared files. Antigravity manages this visually. You can see what each agent is doing, pause them, or redirect them. For anyone who prefers visual control over terminal-level configuration, that's a better experience.</p>
+
+<h2>Where DIY Cron Still Wins</h2>
+
+<p><strong>Truly headless operation.</strong> This is the gap that matters most. My agents run at 3am when my machine is quiet and nothing is open. Antigravity requires the application to be running. If you want agents that work whether or not you're at your desk with the IDE open, you still need to build the cron layer yourself. That's not a knock on Antigravity — it's built around developers interacting with it during the day. But for automation that needs to fire on a schedule regardless of what you're doing, headless wins.</p>
+
+<p><strong>Predictable costs.</strong> Antigravity is free in public preview. That's a growth strategy, not a pricing model. I don't know what GA pricing looks like. My direct API costs are controlled: Haiku for health checks and quick scans, Sonnet for anything requiring judgment, Opus very sparingly. I pay for what I use, and the bill is predictable. That matters when you're running 10 agents daily with real compute behind each one.</p>
+
+<p><strong>Tasks outside the dev stack.</strong> Antigravity's architecture is built around software development workflows. Editor, terminal, browser for testing. My pool chemistry agent doesn't have a codebase. My family calendar briefing doesn't open PRs. If your background agents handle life outside code, you're going custom regardless of what IDE you're using.</p>
+
+<p><strong>Model routing by cost and task type.</strong> I route tasks to different models based on complexity and cost. Simple checks go to Haiku at fractions of a cent. Judgment calls go to Sonnet. I can drop in a local Llama model for zero-cost tasks when the quality bar is low. Antigravity's model choices are Antigravity's model choices — you pick from what they support.</p>
+
+<h2>The Honest Comparison</h2>
+
+<table class="comparison-table">
+  <thead>
+    <tr>
+      <th>Factor</th>
+      <th>Google Antigravity</th>
+      <th>DIY API + Cron</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cost</td>
+      <td class="win">Free (preview), model costs after</td>
+      <td class="neutral">~$40/month for 10 agents</td>
+    </tr>
+    <tr>
+      <td>Headless / no IDE required</td>
+      <td class="neutral">No — IDE must be running</td>
+      <td class="win">Yes — pure cron daemon</td>
+    </tr>
+    <tr>
+      <td>Claude support</td>
+      <td class="win">Native (Sonnet 4.5)</td>
+      <td class="win">Native (any model)</td>
+    </tr>
+    <tr>
+      <td>UI / browser interaction</td>
+      <td class="win">Built in</td>
+      <td class="neutral">Extra tooling required</td>
+    </tr>
+    <tr>
+      <td>Non-coding tasks</td>
+      <td class="neutral">Possible but not the focus</td>
+      <td class="win">Primary use case</td>
+    </tr>
+    <tr>
+      <td>Model routing flexibility</td>
+      <td class="neutral">Supported models only</td>
+      <td class="win">Any provider, any model</td>
+    </tr>
+    <tr>
+      <td>Setup complexity</td>
+      <td class="win">Low — download and run</td>
+      <td class="neutral">Higher — build your own</td>
+    </tr>
+    <tr>
+      <td>3am cron execution</td>
+      <td class="neutral">Not natively</td>
+      <td class="win">That's the whole point</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Who Should Use Which</h2>
+
+<p>Antigravity makes sense if you're a developer who wants to offload complex, UI-touching tasks during the day. Delegating a feature implementation, testing a UI change, running a research task that requires browsing multiple sites. The Manager Surface handles parallel work cleanly and the setup cost is low.</p>
+
+<p>The DIY cron path makes sense if your agents fire on a schedule independent of whether you're at your desk, handle tasks outside the dev stack, or need predictable costs across high-frequency runs. The headless constraint is real and Antigravity doesn't close it.</p>
+
+<p>The honest answer for a lot of developers is probably both. Antigravity for interactive daytime agent work. Cron for overnight automation that shouldn't require your machine to have an IDE open.</p>
+
+<hr />
+
+<p>Google's Manager Surface is the closest thing to the multi-agent cron architecture in a packaged product. The headless gap is the specific thing that keeps me on the DIY path for background agents. If they close it, the calculation changes.</p>
+
+<p>For now: if you're starting from scratch with agent automation and want the free path with Claude support built in, Antigravity is worth a look. If you want the 3am-fires-regardless setup, the free guide covers the full DIY architecture: <a href="https://fernando-fernandez3.github.io">fernando-fernandez3.github.io</a>.</p>
+
+    </div>
+
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">What's Next</div>
+      <div class="inline-cta-title">The full guide is free. The config files aren't.</div>
+      <p>8-chapter guide covers persistent memory, model routing, cron scheduling, health checks, and what breaks in production. The $29 bundle includes all 10 cron configs and monitoring scripts.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        <a href="cursor-automations-vs-diy-cron.html" class="related-card">
+          <div class="related-card-tag">Tools Comparison</div>
+          <div class="related-card-title">Cursor Automations vs. DIY Cron: Where Each Wins</div>
+        </a>
+        <a href="ai-agent-framework-comparison.html" class="related-card">
+          <div class="related-card-tag">Framework Comparison</div>
+          <div class="related-card-title">LangChain, CrewAI, AutoGen: Which Should You Actually Use?</div>
+        </a>
+      </div>
+    </section>
+
+  </article>
+
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
