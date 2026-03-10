@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I Added MCP Servers to My AI Agent Cron System. Here's What Actually Worked. — fernandOS Digital</title>
+  <meta name="description" content="~1,700 words | Target keyword: mcp model context protocol ai agent production | SEO priority: Evergreen/High (trending in 2026)">
+  <meta property="og:title" content="I Added MCP Servers to My AI Agent Cron System. Here's What Actually Worked. — fernandOS Digital">
+  <meta property="og:description" content="~1,700 words | Target keyword: mcp model context protocol ai agent production | SEO priority: Evergreen/High (trending in 2026)">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="I Added MCP Servers to My AI Agent Cron System. Here's What Actually Worked. — fernandOS Digital">
+  <meta name="twitter:description" content="~1,700 words | Target keyword: mcp model context protocol ai agent production | SEO priority: Evergreen/High (trending in 2026)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    /* ─── Article Layout ─────────────────────────────────────── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ─── Sticky CTA Bar ─────────────────────────────────────── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sticky-cta-link {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--amber);
+      color: var(--bg);
+      text-align: center;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sticky-cta-link:hover { background: var(--amber-bright); color: var(--bg); }
+    .sticky-cta-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .sticky-cta-close:hover { color: var(--text-dim); }
+
+    /* ─── Prose Styles ───────────────────────────────────────── */
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 56px;
+      margin-bottom: 20px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+    .article-body h4 {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:first-child {
+      font-size: 1.1em;
+      color: var(--text);
+    }
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .article-body em {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body a {
+      color: var(--amber-glow);
+      border-bottom: 1px solid var(--amber-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .article-body a:hover {
+      color: var(--amber-bright);
+      border-color: var(--amber);
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .article-body ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .article-body ul li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .article-body ol {
+      counter-reset: item;
+    }
+    .article-body ol li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 10px;
+      counter-increment: item;
+      color: var(--text);
+    }
+    .article-body ol li::before {
+      content: counter(item) '.';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--amber-bright);
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px 28px;
+      overflow-x: auto;
+      margin: 0 0 28px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 28px 0;
+      padding: 16px 24px;
+      background: var(--amber-faint);
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body blockquote p { margin-bottom: 0; }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .article-body th {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .article-body td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .article-body tr:hover td { background: var(--bg-2); }
+
+    /* ─── Inline CTA Box ─────────────────────────────────────── */
+    .inline-cta {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 28px 32px;
+      margin: 48px 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Related Posts ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <!-- ─── Sticky Bundle CTA ─────────────────────────────────── -->
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <!-- ─── Article ───────────────────────────────────────────── -->
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Production AI</div>
+      <h1 class="article-title">I Added MCP Servers to My AI Agent Cron System. Here's What Actually Worked.</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>8 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>1,498 words</span>
+      </div>
+      <div class="article-byline">~1,700 words | Target keyword: mcp model context protocol ai agent production | SEO priority: Evergreen/High (trending in 2026)</div>
+    </header>
+
+    <div class="article-body">
+      <hr />
+<p>For context: I've been running a production AI agent system for a few months. Ten cron jobs that fire automatically, manage their own memory, route between models to keep costs down, and send me Telegram notifications when they're done. The full setup is documented in the free guide at https://fernando-fernandez3.github.io.</p>
+<p>What I'm writing about here is what I added after that foundation was solid: MCP servers.</p>
+<hr />
+<h2>What MCP Actually Is (Without the Marketing)</h2>
+<p>MCP stands for Model Context Protocol. Anthropic released it in late 2024. The short version: it's a standard way to give your AI agent access to external tools and data sources, without custom-coding a new integration every time.</p>
+<p>Before MCP, if you wanted your agent to check your calendar, you'd write a Python function that calls the Google Calendar API, handle auth, parse the response, and pass it to your agent as text. Then you'd do the same thing for weather, then for your database, then for GitHub. Every integration was its own project.</p>
+<p>MCP flips this. You install an MCP server (a small program that speaks MCP's protocol), your agent client connects to it, and the agent can now call tools defined by that server. The tools show up the same way as anything else the agent can do. The plumbing is standardized.</p>
+<p>It's not magic. But it cuts a lot of repetitive work.</p>
+<hr />
+<h2>Why I Cared (The Actual Problem I Was Solving)</h2>
+<p>My morning briefing cron was the one that pushed me toward MCP.</p>
+<p>The cron fires at 6am, pulls from my memory files (what I have scheduled, what I was working on), generates a briefing, and sends it via Telegram. It worked fine. But it was pulling from static files. If I wanted to include actual calendar events or real weather, I had to either write custom Python code or pre-load the data manually, which defeats the point of "autonomous."</p>
+<p>I spent an afternoon wiring up a Google Calendar API integration. It worked but it was janky. Auth token management, refresh logic, error handling. I had 120 lines of code just to get "Fernando has a 2pm meeting."</p>
+<p>Then I found the Google Calendar MCP server on GitHub. Swapped out my custom code for the MCP server. The agent just calls <code>calendar/list_events</code> now. The server handles auth and parsing. I deleted 100 lines of code and it worked better.</p>
+<p>That was the moment I understood what MCP was actually for.</p>
+<hr />
+<h2>The Servers I'm Running</h2>
+<p>These are the ones that ended up being genuinely useful, not just interesting to set up.</p>
+<p><strong>Google Calendar</strong><br />
+Repo: <code>googleapis/google-calendar-mcp</code> (or similar, check modelcontextprotocol.io/servers for the current list). The morning briefing cron now includes actual upcoming events, not just what I wrote in my memory files. Real data, no custom code.</p>
+<p><strong>Filesystem</strong><br />
+This one is built into the MCP SDK and ships with Claude Desktop. My agents can read/write files directly through MCP without me passing file paths as strings. Mostly useful for agents that need to write to workspace files: cleaner than subprocess calls.</p>
+<p><strong>Web Fetch / Browser</strong><br />
+There are a few competing implementations. I use one that lets my research agent fetch URLs and get clean text back. This replaced a custom Playwright setup I had. Not perfect (JavaScript-heavy pages still break), but for 80% of my use cases it's good enough and much simpler.</p>
+<p><strong>Weather</strong><br />
+Honestly, this is a trivial use case but it was the first MCP server I set up for fun. My morning briefing now includes the high/low for San Antonio. Took 10 minutes. I would not have bothered writing a custom weather integration.</p>
+<p><strong>SQLite</strong><br />
+This one I'm still experimenting with. The idea is that my agents can query a local database instead of reading flat files for certain types of structured data. In practice, flat markdown files still work better for memory and context. I'm keeping the SQLite server for specific tasks where I need to query historical data.</p>
+<hr />
+<h2>What I Didn't Bother With</h2>
+<p>Half the MCP servers on the public registries are not worth your time for a production cron system. Here's my filter.</p>
+<p><strong>Anything that requires interactive OAuth per-session.</strong> Some servers need you to click through an auth flow in a browser. That breaks completely in a headless cron job that runs at 6am. If the server can't handle a pre-stored token or service account, skip it for cron use.</p>
+<p><strong>Anything with no maintenance.</strong> Some servers are someone's weekend project from a year ago. Check the GitHub stars and last commit date. If it's abandoned, you'll spend more time debugging than you would have writing your own integration.</p>
+<p><strong>Niche tool integrations when free-tier API calls work fine.</strong> Notion MCP, Linear MCP, various project management tools. These are great if you're already paying for those services. I'm not, so the integrations don't apply to me. Don't install servers for tools you don't actually use.</p>
+<hr />
+<h2>The Practical Setup</h2>
+<p>This assumes you already have agents running and want to add MCP to your setup. If you're starting from zero, the free guide at https://fernando-fernandez3.github.io covers the base infrastructure first.</p>
+<p><strong>Install the MCP SDK:</strong></p>
+<pre><code class="language-bash">pip install mcp
+</code></pre>
+<p><strong>Check what's compatible with your agent client.</strong> Claude Code, Claude Desktop, and OpenClaw all support MCP. Each has slightly different server config syntax. OpenClaw uses <code>openclaw.json</code>. Claude Desktop uses <code>claude_desktop_config.json</code>. Read the config docs for whichever client you're using.</p>
+<p><strong>Add a server to your config.</strong> Example for a filesystem server in OpenClaw:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;filesystem&quot;: {
+      &quot;command&quot;: &quot;npx&quot;,
+      &quot;args&quot;: [&quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/path/to/your/workspace&quot;]
+    }
+  }
+}
+</code></pre>
+<p><strong>Restart your agent client.</strong> MCP servers initialize at startup. If you add a new server, you need to restart.</p>
+<p><strong>Test the tool manually before wiring it into a cron.</strong> Run an interactive session, ask the agent to use the tool, confirm the output looks right. Only then put it in an automated cron.</p>
+<p><strong>One server at a time.</strong> Don't add five servers simultaneously. When something breaks, you want to know which server caused it.</p>
+<hr />
+<h2>What Broke and How I Fixed It</h2>
+<p><strong>Token expiry in headless crons.</strong> My Google Calendar server worked great interactively. Failed completely when the cron ran at 6am because the OAuth token expired. Fix: set up a service account with a JSON key file instead of user OAuth. Service accounts don't expire. Takes an extra 30 minutes to set up but solves the problem permanently.</p>
+<p><strong>Server startup time.</strong> Some MCP servers spin up slowly. If your cron expects an agent to have tools available immediately, you'll hit race conditions. Fix: add a short sleep after agent init or check that the server is responding before the main task starts.</p>
+<p><strong>Tool name conflicts.</strong> I had two servers that both exposed a tool called <code>read_file</code>. The agent got confused about which one to call. Fix: rename one in the config, or pick servers that have distinct tool namespaces.</p>
+<p><strong>Version drift.</strong> MCP is still a relatively new protocol. Server implementations change. I've had servers break after npm updates. Fix: pin your server versions in your config and update deliberately, not automatically.</p>
+<hr />
+<h2>The Honest ROI</h2>
+<p>MCP is worth it if you're running production agents that need to reach outside your local filesystem.</p>
+<p>For my setup, the time savings are real. I deleted a few hundred lines of custom integration code. My agents are cleaner. When I want a new data source, I check the MCP server registry first before writing anything. Usually something exists.</p>
+<p>It's not worth it if you're still figuring out the basics. Get your agents running reliably first. Memory management, model routing, monitoring, cost control. That's the foundation. Once you have agents that you trust to run unsupervised, then MCP gives you a cleaner way to extend them.</p>
+<p>If you haven't built that foundation yet, start here: https://fernando-fernandez3.github.io. It covers the architecture I'm running, the cost structure, and the monitoring setup that tells you when something breaks. MCP comes after.</p>
+<hr />
+<h2>The Servers Worth Trying First</h2>
+<p>If you want to add MCP to a working cron agent system, here's where I'd start:</p>
+<ol>
+<li><strong>Filesystem server</strong>: the lowest risk, no auth required, immediately useful</li>
+<li><strong>Web fetch server</strong>: good if your agents do research or need to read URLs</li>
+<li><strong>Google Calendar</strong>: if you want real schedule data in a morning briefing cron</li>
+<li><strong>SQLite</strong>: if you have structured data you want to query, rather than reading flat files</li>
+</ol>
+<p>Skip the exotic ones until the basics work. The protocol is stable. The individual server implementations are not.</p>
+<hr />
+<p><em>The base agent architecture this post builds on is documented in the free guide at https://fernando-fernandez3.github.io. The $29 bundle at https://2507138417784.gumroad.com/l/ship-your-ai-agent includes all 10 cron configs, workspace templates, and shell scripts: the foundation for what I'm describing here.</em></p>
+    </div>
+
+    <!-- ─── Bottom CTA ───────────────────────────────────────── -->
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">What's Next</div>
+      <div class="inline-cta-title">The full guide is free. The config files aren't.</div>
+      <p>8-chapter free guide covers the complete architecture. The $29 bundle includes all the actual files: 10 cron configs, workspace templates, monitoring scripts, token dashboard.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <!-- ─── Related Posts ─────────────────────────────────────── -->
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Sticky CTA: show after 40% scroll
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>

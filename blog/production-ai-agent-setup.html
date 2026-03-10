@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Build a Production AI Agent System (Real Architecture, Real Costs) — fernandOS Digital</title>
+  <meta name="description" content="Real architecture, real costs. Memory, cron, monitoring, and token optimization.">
+  <meta property="og:title" content="How to Build a Production AI Agent System (Real Architecture, Real Costs) — fernandOS Digital">
+  <meta property="og:description" content="Real architecture, real costs. Memory, cron, monitoring, and token optimization.">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Build a Production AI Agent System (Real Architecture, Real Costs) — fernandOS Digital">
+  <meta name="twitter:description" content="Real architecture, real costs. Memory, cron, monitoring, and token optimization.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    /* ─── Article Layout ─────────────────────────────────────── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ─── Sticky CTA Bar ─────────────────────────────────────── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sticky-cta-link {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--amber);
+      color: var(--bg);
+      text-align: center;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sticky-cta-link:hover { background: var(--amber-bright); color: var(--bg); }
+    .sticky-cta-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .sticky-cta-close:hover { color: var(--text-dim); }
+
+    /* ─── Prose Styles ───────────────────────────────────────── */
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 56px;
+      margin-bottom: 20px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+    .article-body h4 {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:first-child {
+      font-size: 1.1em;
+      color: var(--text);
+    }
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .article-body em {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body a {
+      color: var(--amber-glow);
+      border-bottom: 1px solid var(--amber-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .article-body a:hover {
+      color: var(--amber-bright);
+      border-color: var(--amber);
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .article-body ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .article-body ul li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .article-body ol {
+      counter-reset: item;
+    }
+    .article-body ol li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 10px;
+      counter-increment: item;
+      color: var(--text);
+    }
+    .article-body ol li::before {
+      content: counter(item) '.';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--amber-bright);
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px 28px;
+      overflow-x: auto;
+      margin: 0 0 28px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 28px 0;
+      padding: 16px 24px;
+      background: var(--amber-faint);
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body blockquote p { margin-bottom: 0; }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .article-body th {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .article-body td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .article-body tr:hover td { background: var(--bg-2); }
+
+    /* ─── Inline CTA Box ─────────────────────────────────────── */
+    .inline-cta {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 28px 32px;
+      margin: 48px 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Related Posts ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <!-- ─── Sticky Bundle CTA ─────────────────────────────────── -->
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <!-- ─── Article ───────────────────────────────────────────── -->
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Production AI</div>
+      <h1 class="article-title">How to Build a Production AI Agent System (Real Architecture, Real Costs)</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>11 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>2,064 words</span>
+      </div>
+      <div class="article-byline">By Fernando Fernandez · Staff Support Engineer at Tesla, self-taught Python dev, runs 10+ AI cron jobs daily</div>
+    </header>
+
+    <div class="article-body">
+      <p>Most AI agent tutorials end the moment the demo works.</p>
+<p>You paste in an API key, the agent responds in the terminal, and the tutorial says "great, you've built an agent." But what they showed you is a chatbot with extra steps. You still have to start it. You still have to remember to check it. The moment you close the terminal, it's gone.</p>
+<p>A production agent is different. It runs at 6am while you're asleep. It remembers what you told it three weeks ago. It tells you when it breaks. It costs about the same as a lunch every two days.</p>
+<p>This post is about building that. Architecture, costs, and failure modes from my experience.</p>
+<p>Full guide is free here: https://fernando-fernandez3.github.io</p>
+<hr />
+<h2>The Four Problems That Break AI Agents in Production</h2>
+<p>Before I built something that worked, I built several things that didn't. The problems kept showing up in the same four flavors.</p>
+<h3>1. Memory Loss Between Sessions</h3>
+<p>The first week I ran my agent, I'd have a great conversation. We'd work through something, land on a conclusion, make a plan. Then the next morning I'd pick up where I left off and my agent would say something like, "I'm not sure what you're referring to, could you explain?"</p>
+<p>Every session starts blank. The API is stateless by design. You're not forgetting to save something. The architecture just doesn't persist anything unless you build that layer yourself.</p>
+<p>People try a few workarounds. Some paste previous chat history back into context. That works for a few sessions before the context fills up and gets expensive. Some try plugins or vector databases. Those work, but they add setup and maintenance overhead that's hard to justify for a personal system.</p>
+<p>There's a simpler approach. I'll get to it.</p>
+<h3>2. No Visibility Into What the Agent Did</h3>
+<p>An agent ran for three hours. You have no idea what it actually did. Was it making progress? Did it hit an error and silently loop? Did it complete the task ten minutes in and spend the rest of the time doing nothing?</p>
+<p>This is the "quis custodiet" problem, who watches the watcher. Without logging and monitoring, you're flying blind. You find out something broke when you notice the output stopped showing up, not when it actually happened.</p>
+<h3>3. Unpredictable Token Costs</h3>
+<p>Tokens are the unit that AI models bill you on. Roughly three-quarters of a word. When your agent reads a file, that's tokens. When it writes a response, that's tokens. Long context histories compound fast.</p>
+<p>The naive implementation routes everything to your most capable (most expensive) model. A morning news digest doesn't need the same model you'd use for complex analysis. Running everything on your heavy model is like hiring a principal engineer to write your meeting notes. Wasteful.</p>
+<p>I've seen my setup cost $30/day when I was doing it wrong. After fixing model routing, same workload, same number of jobs: $3/day.</p>
+<h3>4. Constant Babysitting</h3>
+<p>"Autonomous" agents that still need you to initiate them aren't autonomous. They're just a fancier way to paste a prompt.</p>
+<p>The goal is an agent that runs its morning briefing at 6am without you touching anything. That emails you a summary while you're at the gym. That alerts you when something breaks without you having to notice it's broken first.</p>
+<p>That requires scheduling. And scheduling requires a slightly different setup than most tutorials show.</p>
+<hr />
+<h2>The Architecture That Solves All Four</h2>
+<p>Four components. Each one targets a specific problem. In order of how much pain you'll feel if you skip one:</p>
+<ol>
+<li><strong>Memory layer</strong> - solves context loss</li>
+<li><strong>Cron jobs</strong> - solves the "requires babysitting" problem</li>
+<li><strong>Monitoring</strong> - solves visibility</li>
+<li><strong>Token optimization</strong> - solves unpredictable costs</li>
+</ol>
+<hr />
+<h2>Component 1: Memory Architecture</h2>
+<p>The three-file system is the core of mine. No database. Just markdown files on disk.</p>
+<p><strong>MEMORY.md</strong> is long-term context. Name, current projects, ongoing decisions, preferences, things that shouldn't require re-explaining every session. My agent reads this at the start of every session. If I've been troubleshooting my pool pump for two weeks, that's in there. It's the context layer that makes conversations feel continuous instead of starting from zero.</p>
+<p><strong>Daily notes</strong> are episodic memory. Each night, a cron job goes through that day's conversations and extracts what matters. Not transcripts. More like a debrief. "Fernando mentioned the pool pH is running high. He wants to look at it this weekend. Marathon training is going well, he hit his pace target." Gets written to a dated file. If I need to know what I decided about something three weeks ago, it's there.</p>
+<p><strong>AGENTS.md</strong> is the per-agent instruction file. Every agent reads it at session start. It describes what the agent does, what tools it has access to, and how it should behave. This is how you keep multiple agents from conflicting with each other.</p>
+<p>Three files, no external dependencies. If something breaks, I open the files in a text editor and see exactly what's going on.</p>
+<p>The maintenance piece matters: as daily notes accumulate, the memory grows unbounded. I have a nightly cron job that runs a compression pass using Haiku (cheap and fast for this kind of read/summarize task). It pulls what's still relevant into MEMORY.md and archives the rest. Context stays manageable.</p>
+<p>What breaks without this: everything gets worse. Your agent can't reference last week's decision. You repeat yourself constantly. The more agents you add, the worse it gets because they're all missing the same context. Build memory first.</p>
+<hr />
+<h2>Component 2: Cron Job Architecture</h2>
+<p>A cron job is a scheduled task. If you've ever set a recurring calendar reminder, you understand the concept. Same idea, but instead of reminding you to do something, your agent goes and does it.</p>
+<p>This is what separates an agent from a chatbot. A chatbot waits for you. An agent runs whether you show up or not.</p>
+<p>My 10 cron jobs, organized by type:</p>
+<p><strong>Briefings and digests</strong><br />
+- 6:00am: Morning news digest on AI, Tesla, running, and Texas BBQ. Delivered to my phone via Telegram before I'm out of bed.<br />
+- 11:00pm: Daily summary. What happened, what to carry into tomorrow, memory write.</p>
+<p><strong>Recurring tasks</strong><br />
+- Three times a day: Spanish practice lessons. Because when it just shows up automatically, I do it. When I had to opt-in, I'd skip it.</p>
+<p><strong>Maintenance jobs</strong><br />
+- 6:15am: Memory compression and maintenance. Haiku reads that day's notes, updates MEMORY.md, archives what's stale.<br />
+- 9:00am: Health check. Verifies the other jobs ran. Reports failures immediately.</p>
+<p><strong>Work-specific jobs</strong><br />
+- Periodic JIRA queue review. Checks for unreviewed tickets, flags what needs my attention, handles what doesn't. Before agents, I reviewed every ticket manually.</p>
+<p>The model routing piece is where most people leave money on the table. My config specifies a model per job:</p>
+<ul>
+<li>Haiku: health checks, file reads, memory compression, Spanish quizzes. Cheap, fast, good enough.</li>
+<li>Sonnet: morning briefings, daily summaries, anything with output quality requirements.</li>
+<li>Opus: complex reasoning, multi-step analysis (roughly 5% of my total calls).</li>
+</ul>
+<p>Before I set this up, I was running everything on Sonnet. That alone dropped my costs by around 60% when I switched.</p>
+<p>The analogy I use: if you're a company and you send your principal engineer to grab coffee, you're misallocating. That's what a junior hire is for. Same logic applies here. Match the model to the task, not the other way around.</p>
+<hr />
+<h2>Component 3: Monitoring and Reliability</h2>
+<p>Here's what happens without monitoring: you set up a cron job, it runs fine for two weeks, then quietly starts failing. You don't notice. Your morning briefing stops showing up and you think you've just been busy. Three days later you go digging.</p>
+<p>That happened to me. More than once.</p>
+<p><strong>The health-check cron</strong></p>
+<p>Each of my cron jobs writes a heartbeat timestamp when it runs. A separate health-check cron runs every hour. It reads those timestamps. If any job has been silent for longer than expected, it sends a Telegram notification immediately. Not the next morning when I notice the briefing didn't show up. Immediately.</p>
+<p>This is two layers:</p>
+<ol>
+<li>Each job writes "I ran at 6:02am"</li>
+<li>The health-check reads those entries and says "job X should have run by 6:30am and hasn't"</li>
+</ol>
+<p>If the health-check itself fails, that's a different alert path. The point is: you need to watch the watcher.</p>
+<p><strong>Failure modes I've actually hit</strong></p>
+<p>Timezone mismatch. Parts of my setup were running in local time, parts in UTC. That caused a cron to trigger at the wrong time, which caused downstream jobs to fail because the expected input wasn't ready. Not obvious. Took a while to find. Now I'm explicit about timezone in every job config.</p>
+<p>Silent failures. Before I built the health check, jobs would fail with no notification, no error visible anywhere. The job just didn't run. Build monitoring before you need it. It takes less time to set up than to debug a week of silent failures.</p>
+<p><strong>Quality drift</strong></p>
+<p>The health check catches outright failures. Quality drift is harder. A cron might still be running but producing worse output because the context has gotten stale, a prompt has drifted, or an upstream data source changed. For this, I do a periodic manual review. Not daily. But I do check. Automation reduces oversight, it doesn't replace it.</p>
+<hr />
+<h2>Component 4: Token Cost Optimization</h2>
+<p>Real numbers from my setup:</p>
+<ul>
+<li><strong>Daily cost:</strong> ~$3 for 10+ cron jobs plus interactive sessions</li>
+<li><strong>Model split:</strong> ~60% Haiku, ~35% Sonnet, ~5% Opus</li>
+<li><strong>Monthly plan:</strong> Anthropic Max at $100/month. The only limit I've hit is rate limiting on requests, not token budget.</li>
+</ul>
+<p>The token dashboard is an HTML file that visualizes usage by model and job type. When I saw which jobs were burning the most, I knew where to optimize. You can't manage what you can't see.</p>
+<p>Context trimming matters too. My agents don't load the full memory archive every session. They load MEMORY.md plus the relevant daily note. If they need more context, they know where to look. Loading everything by default is the same mistake as defaulting to Opus for everything: expensive and unnecessary.</p>
+<p>The decision tree I use for model selection:</p>
+<ul>
+<li>Does the task require multi-step reasoning or generate something that has to be high quality? Sonnet minimum.</li>
+<li>Is it a read/check/summarize/compress task? Haiku.</li>
+<li>Is it something genuinely complex where quality of reasoning matters? Opus, but rarely.</li>
+</ul>
+<hr />
+<h2>Real Numbers</h2>
+<p>Setup as of early 2026:</p>
+<ul>
+<li>10 cron jobs, various schedules throughout the day</li>
+<li>Telegram for all notifications (personal and family group)</li>
+<li>ElevenLabs for Spanish TTS, Kokoro for English TTS (local, zero cost)</li>
+<li>Memory layer: MEMORY.md + dated daily notes + topic files by conversation type</li>
+<li>$100/month on Anthropic Max</li>
+</ul>
+<p>Time investment: maybe 30 minutes a day on average. Some days zero. Some days two hours if I'm adding something or debugging something weird. The maintenance overhead is low once the system is stable.</p>
+<p>What surprised me most: the family coordination piece. I set it up expecting it to be a nice-to-have. My wife is in a group chat with me and my agent. Three days before a family trip, the night before, morning of, my agent sends reminders. Neither of us forgets. That turned out to be the most consistently valuable thing the system does.</p>
+<p>What I'd do differently: build the memory system first, before anything else. I lost two weeks of useful context because I didn't. Build the health-check cron before anything else, for the same reason.</p>
+<hr />
+<h2>Where to Go From Here</h2>
+<p>The free guide goes through all of this in more detail. Eight chapters with setup steps and configurations.</p>
+<p>If you want to skip rebuilding the config files from scratch, there's a $29 bundle: all 10 cron configs (with model selection rationale), workspace templates, monitoring scripts, and the token dashboard HTML.</p>
+<p>Free guide: https://fernando-fernandez3.github.io<br />
+Config bundle: https://fernando-fernandez3.github.io</p>
+<p>Whatever you're manually doing on a regular basis, there's probably an agent configuration that takes the first pass. Start with one thing, get it working, then add the next one.</p>
+<hr />
+<p><em>Questions about the architecture? Drop them in the comments. I'll answer.</em></p>
+    </div>
+
+    <!-- ─── Bottom CTA ───────────────────────────────────────── -->
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">What's Next</div>
+      <div class="inline-cta-title">The full guide is free. The config files aren't.</div>
+      <p>8-chapter free guide covers the complete architecture. The $29 bundle includes all the actual files: 10 cron configs, workspace templates, monitoring scripts, token dashboard.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <!-- ─── Related Posts ─────────────────────────────────────── -->
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        <a href="ai-agent-cron-jobs.html" class="related-card"><div class="related-card-tag">Cron & Scheduling</div><div class="related-card-title">How to Run AI Agents on Cron Jobs</div></a>
+<a href="claude-api-cost-reduction.html" class="related-card"><div class="related-card-tag">Cost Optimization</div><div class="related-card-title">How I Cut My Claude API Costs by 60%</div></a>
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Sticky CTA: show after 40% scroll
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>

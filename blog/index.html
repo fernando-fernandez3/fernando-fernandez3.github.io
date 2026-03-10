@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — fernandOS Digital | Production AI Agent Guides</title>
+  <meta name="description" content="Real notes on building production AI agent systems. Memory, cron jobs, monitoring, cost optimization. No tutorials that end when the demo works.">
+  <meta property="og:title" content="Blog — fernandOS Digital">
+  <meta property="og:description" content="Real notes on building production AI agent systems. Memory, cron, monitoring, cost. No demo tutorials.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    .hero {
+      padding: 140px 28px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-label::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .hero-title {
+      font-family: var(--sans);
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-dim);
+      font-weight: 300;
+      max-width: 520px;
+    }
+
+    /* ─── Posts Grid ────────────────────────────────────────── */
+    .posts-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+
+    /* Featured post (first one) */
+    .post-featured {
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 52px 0 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .post-featured-inner {
+      max-width: 660px;
+    }
+    .post-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .post-tag-badge {
+      background: var(--amber-faint);
+      border: 1px solid var(--amber-dim);
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+    .post-featured-title {
+      font-family: var(--sans);
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .post-featured-title:hover { color: var(--amber-bright); }
+    .post-featured-excerpt {
+      font-size: 16px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+      max-width: 580px;
+      line-height: 1.6;
+    }
+    .post-meta {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .post-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .post-read-link {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-left: auto;
+      transition: color 0.2s;
+    }
+    .post-read-link:hover { color: var(--amber-bright); }
+
+    /* Grid of remaining posts */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    @media (max-width: 640px) {
+      .posts-grid { grid-template-columns: 1fr; }
+    }
+
+    .post-card {
+      padding: 36px 32px 36px 0;
+      border-bottom: 1px solid var(--border);
+      display: block;
+      color: var(--text);
+      transition: background 0.2s;
+    }
+    .post-card:nth-child(even) {
+      padding-left: 32px;
+      padding-right: 0;
+      border-left: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      .post-card { padding: 32px 0; }
+      .post-card:nth-child(even) { padding-left: 0; border-left: none; }
+    }
+    .post-card:hover { background: rgba(13,13,18,0.6); }
+
+    .post-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .post-card-title {
+      font-family: var(--sans);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 10px;
+      transition: color 0.2s;
+    }
+    .post-card:hover .post-card-title { color: var(--amber-bright); }
+    .post-card-excerpt {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .post-card-meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* ─── CTA Strip ─────────────────────────────────────────── */
+    .cta-strip {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 40px 44px;
+      margin: 60px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .cta-strip-text {}
+    .cta-strip-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .cta-strip-title {
+      font-family: var(--sans);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .cta-strip-sub {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .cta-strip-actions { display: flex; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+    .btn-primary {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 12px 24px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-secondary {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 12px 24px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+      white-space: nowrap;
+    }
+    .btn-secondary:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .hero { padding: 120px 20px 60px; }
+      .posts-wrap { padding: 0 20px 80px; }
+      .cta-strip { padding: 28px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+  </nav>
+
+  <!-- ─── Hero ────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-label">fernandOS Digital</div>
+    <h1 class="hero-title">Production AI.<br>Real Notes.</h1>
+    <p class="hero-sub">Guides on building AI agent systems that actually run in production. Memory, cron jobs, monitoring, cost. Not demo tutorials.</p>
+  </section>
+
+  <!-- ─── Posts ────────────────────────────────────────────── -->
+  <main class="posts-wrap">
+
+    <!-- Featured -->
+    <div class="post-featured">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Start Here</span>
+          Architecture
+        </div>
+        <a href="production-ai-agent-setup.html">
+          <div class="post-featured-title">How to Build a Production AI Agent System (Real Architecture, Real Costs)</div>
+        </a>
+        <div class="post-featured-excerpt">Most AI agent tutorials end the moment the demo works. This one starts there. Memory, cron scheduling, monitoring, and token optimization — with real numbers from a system that's been running daily.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~13 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>2,600 words</span>
+          <a href="production-ai-agent-setup.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="posts-grid">
+
+      <a href="ai-agent-cron-jobs.html" class="post-card">
+        <div class="post-card-tag">Cron &amp; Scheduling</div>
+        <div class="post-card-title">How to Run AI Agents on Cron Jobs (10 Real Examples With Costs)</div>
+        <div class="post-card-excerpt">The gap between "I have an AI agent" and "I have an agent that does things" is a cron job. Real configs, real model choices.</div>
+        <div class="post-card-meta">
+          <span>~11 min</span>
+          <span class="post-meta-dot"></span>
+          <span>2,100 words</span>
+        </div>
+      </a>
+
+      <a href="claude-api-cost-reduction.html" class="post-card">
+        <div class="post-card-tag">Cost Optimization</div>
+        <div class="post-card-title">How I Cut My Claude API Costs by 60% With Model Routing</div>
+        <div class="post-card-excerpt">One habit change: stop routing everything to your most expensive model. Same workload, $30/day down to $3/day.</div>
+        <div class="post-card-meta">
+          <span>~7 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,300 words</span>
+        </div>
+      </a>
+
+      <a href="claude-code-memory-persistence.html" class="post-card">
+        <div class="post-card-tag">Memory System</div>
+        <div class="post-card-title">How to Give Your AI Agent Memory That Persists Across Sessions</div>
+        <div class="post-card-excerpt">Three markdown files, no database. MEMORY.md, USER.md, AGENTS.md. How the three-file system works and how to set it up.</div>
+        <div class="post-card-meta">
+          <span>~9 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,700 words</span>
+        </div>
+      </a>
+
+      <a href="ai-agent-monitoring.html" class="post-card">
+        <div class="post-card-tag">Monitoring</div>
+        <div class="post-card-title">How to Monitor Your AI Agents So You Know When They Break</div>
+        <div class="post-card-excerpt">Heartbeat timestamps, health checks, and the watcher-watching-the-watcher problem. What to alert on vs. log quietly.</div>
+        <div class="post-card-meta">
+          <span>~10 min</span>
+          <span class="post-meta-dot"></span>
+          <span>2,000 words</span>
+        </div>
+      </a>
+
+      <a href="ai-agent-vs-chatbot.html" class="post-card">
+        <div class="post-card-tag">Fundamentals</div>
+        <div class="post-card-title">What's the Difference Between an AI Chatbot and an AI Agent?</div>
+        <div class="post-card-excerpt">The architectural gap is bigger than most tutorials show. Here's what separates a chatbot from a production agent.</div>
+        <div class="post-card-meta">
+          <span>~9 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,700 words</span>
+        </div>
+      </a>
+
+      <a href="production-ai-agent-cost.html" class="post-card">
+        <div class="post-card-tag">Real Costs</div>
+        <div class="post-card-title">What Does It Actually Cost to Run a Production AI Agent?</div>
+        <div class="post-card-excerpt">My real monthly numbers. $3/day for 10+ cron jobs. Breakdown by model and job type so you can estimate your own.</div>
+        <div class="post-card-meta">
+          <span>~6 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,100 words</span>
+        </div>
+      </a>
+
+      <a href="claude-telegram-notifications.html" class="post-card">
+        <div class="post-card-tag">Notifications</div>
+        <div class="post-card-title">Getting AI Agent Notifications on Telegram</div>
+        <div class="post-card-excerpt">Free, fast, works from any server. How to wire up Telegram so your agent can reach you when something happens.</div>
+        <div class="post-card-meta">
+          <span>~9 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,800 words</span>
+        </div>
+      </a>
+
+      <a href="ai-tts-agent-briefing.html" class="post-card">
+        <div class="post-card-tag">Voice &amp; TTS</div>
+        <div class="post-card-title">ElevenLabs vs Kokoro for AI Agent TTS: Real Comparison</div>
+        <div class="post-card-excerpt">Two TTS systems, same use case. Latency, cost, voice quality, and when to use each. The decision I made and why.</div>
+        <div class="post-card-meta">
+          <span>~8 min</span>
+          <span class="post-meta-dot"></span>
+          <span>1,600 words</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Narrative post (full width) -->
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Real World</span>
+          Experience
+        </div>
+        <a href="ai-agent-daily-routine.html">
+          <div class="post-featured-title">What My 10 AI Cron Jobs Actually Do for Me Every Day</div>
+        </a>
+        <div class="post-featured-excerpt">Not a tutorial. This is what it's actually like when the system is running. What changed, what didn't, and the one cron job I killed after six weeks because nobody was reading its output.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~7 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>1,400 words</span>
+          <a href="ai-agent-daily-routine.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Multi-Agent</span>
+          Architecture
+        </div>
+        <a href="multi-agent-side-business.html">
+          <div class="post-featured-title">I Built a 6-Agent System That Runs My Side Business While I Sleep</div>
+        </a>
+        <div class="post-featured-excerpt">How I coordinate six Claude agents across a shared roadmap to produce product guides, blog posts, and launch plans — without touching it. The hard part isn't the agents. It's coordination.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~9 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>1,613 words</span>
+          <a href="multi-agent-side-business.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Income</span>
+          AI Agents + Business
+        </div>
+        <a href="ai-agents-digital-product.html">
+          <div class="post-featured-title">How I Used AI Agents to Build and Launch a Digital Product in a Week</div>
+        </a>
+        <div class="post-featured-excerpt">An honest breakdown of what agents actually did: research, 11 SEO posts, landing page, email sequence, launch playbook. What I had to write myself. And the full cost breakdown — $40 in compute, $52 all-in before a single sale.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>1,600 words</span>
+          <a href="ai-agents-digital-product.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Debugging</span>
+          Production AI
+        </div>
+        <a href="ai-agent-production-failures.html">
+          <div class="post-featured-title">My AI Agents Kept Failing in Production. Here Are the 7 Things I Fixed.</div>
+        </a>
+        <div class="post-featured-excerpt">Seven real failures that broke my AI agent cron system: silent crashes, API timeouts, wrong file paths, memory file drift, model cost mismatch, rate limit spikes, and prompt context gaps. Here's exactly what I changed.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,800 words</span>
+          <a href="ai-agent-production-failures.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">MCP</span>
+          Production AI
+        </div>
+        <a href="mcp-ai-agent-cron-system.html">
+          <div class="post-featured-title">I Added MCP Servers to My AI Agent Cron System. Here's What Actually Worked.</div>
+        </a>
+        <div class="post-featured-excerpt">Which MCP servers are worth the setup for headless cron agents, what broke (OAuth expiry, tool name conflicts, version drift), and the honest ROI. Google Calendar, Filesystem, Web Fetch — with notes on what to skip.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~9 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="mcp-ai-agent-cron-system.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Memory</span>
+          Production AI
+        </div>
+        <a href="ai-agent-memory-system.html">
+          <div class="post-featured-title">The Markdown Memory System: How I Give My AI Agents Long-Term Memory Without a Vector Database</div>
+        </a>
+        <div class="post-featured-excerpt">Three plain markdown files. No subscriptions, no embeddings, no infrastructure. How I keep 10+ cron agents from waking up amnesiac every morning, with honest notes on where the system breaks.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~9 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,750 words</span>
+          <a href="ai-agent-memory-system.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Frameworks</span>
+          Decision Guide
+        </div>
+        <a href="ai-agent-framework-comparison.html">
+          <div class="post-featured-title">LangChain, CrewAI, AutoGen: Which AI Agent Framework Should You Actually Use?</div>
+        </a>
+        <div class="post-featured-excerpt">I rebuilt the same agent in three frameworks, then threw them all out. Honest breakdown of what each does well, where each breaks down in production, and when you don't need any of them.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~9 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,850 words</span>
+          <a href="ai-agent-framework-comparison.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Multi-Agent</span>
+          Claude Code Agent Teams
+        </div>
+        <a href="claude-code-agent-teams-business.html">
+          <div class="post-featured-title">I Don't Use Claude Code Agent Teams for Coding. I Use Them to Run My Business.</div>
+        </a>
+        <div class="post-featured-excerpt">Six agents on cron, coordinating through markdown files, costing $0.40/day. No orchestrator framework, no interactive sessions, no frameworks. Here's the architecture that actually runs autonomously.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,800 words</span>
+          <a href="claude-code-agent-teams-business.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Multi-Agent</span>
+          AI Agent Quality Control
+        </div>
+        <a href="ai-agent-quality-control.html">
+          <div class="post-featured-title">I Made My AI Agents Review Each Other's Work. Here's What Actually Changed.</div>
+        </a>
+        <div class="post-featured-excerpt">The yes-man problem is real: agents that complete the task without questioning whether the output is actually good. Adding a dedicated QA agent that only criticizes — not produces — changed how I supervise the pipeline.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="ai-agent-quality-control.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="post-featured" style="border-top: 1px solid var(--border);">
+      <div class="post-featured-inner">
+        <div class="post-tag">
+          <span class="post-tag-badge">Origin Story</span>
+          Non-Developer Builds Agent System
+        </div>
+        <a href="not-a-developer-built-agent-system.html">
+          <div class="post-featured-title">I Was an Auto Mechanic. Now I Run 10 Background AI Agents. Here's What It Actually Took.</div>
+        </a>
+        <div class="post-featured-excerpt">Eight years ago I was diagnosing engine misfires under a lift. No CS degree. Self-taught Python. Now I have 10 cron agents running at $3/day. Here's the real story of what crossing that gap looked like — and what actually matters vs. what the tutorials skip.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~9 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,650 words</span>
+          <a href="not-a-developer-built-agent-system.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+    </div>
+
+      <!-- Post 20 -->
+      <div class="post-card">
+        <div class="post-card-tag">Claude Code</div>
+        <a href="claude-code-auto-mode-background-agents.html">
+          <div class="post-card-title">Claude Code Auto Mode Drops This Week. My Background Agents Don't Need It.</div>
+        </a>
+        <div class="post-card-excerpt">Auto Mode fixes interactive permission prompts. My cron-based background agents never had that problem — because I designed agents that don't need runtime approval. Here's how.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~7 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="claude-code-auto-mode-background-agents.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 21 -->
+      <div class="post-card">
+        <div class="post-card-tag">News / Analysis</div>
+        <a href="anthropic-claude-marketplace.html">
+          <div class="post-card-title">Anthropic Built a Marketplace. I'm Not Buying Anything.</div>
+        </a>
+        <div class="post-card-excerpt">Claude Marketplace launched March 6 — for enterprises with existing Anthropic spend commitments. Here's what independent builders are doing instead, and why the $40/month DIY path still wins.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="anthropic-claude-marketplace.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 22 -->
+      <div class="post-card">
+        <div class="post-card-tag">News / Analysis</div>
+        <a href="claude-code-review-diy.html">
+          <div class="post-card-title">Anthropic Launched a $25 PR Review Agent. I've Been Running the Same Thing for $0.02.</div>
+        </a>
+        <div class="post-card-excerpt">Claude Code Review launched today for Teams/Enterprise. The multi-agent review pattern has been running in production for months. Here's the cost comparison and how to build it yourself.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~7 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,450 words</span>
+          <a href="claude-code-review-diy.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 23 -->
+      <div class="post-card">
+        <div class="post-card-tag">News / Analysis</div>
+        <a href="copilot-cowork-vs-diy-agents.html">
+          <div class="post-card-title">Microsoft Built an Enterprise AI Agent for $30/Month. My Setup Runs 10 of Them for $40/Month Total.</div>
+        </a>
+        <div class="post-card-excerpt">Copilot Cowork dropped today — Claude-powered agents inside Microsoft 365 doing calendar, email, and slides. Here's how that compares to a DIY background agent setup built on the API.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~7 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="copilot-cowork-vs-diy-agents.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 24 -->
+      <div class="post-card">
+        <div class="post-card-tag">News / Analysis</div>
+        <a href="gpt54-vs-claude-background-agents.html">
+          <div class="post-card-title">GPT-5.4 Launched. My Background Agents Are Still on Claude. Here's the Actual Decision.</div>
+        </a>
+        <div class="post-card-excerpt">OpenAI's GPT-5.4 has native computer use, 1M token context, and a Tool Search feature that cuts costs by 47%. Here's the real decision calculus for background cron agents — what matters, what doesn't, and what would actually make me switch.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,620 words</span>
+          <a href="gpt54-vs-claude-background-agents.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 25 -->
+      <div class="post-card">
+        <div class="post-card-tag">Migration / Getting Started</div>
+        <a href="switching-openai-to-claude-agents.html">
+          <div class="post-card-title">A Lot of Developers Are Switching to Claude Right Now. Here's What You'll Actually Hit.</div>
+        </a>
+        <div class="post-card-excerpt">Claude hit #1 on the App Store after the OpenAI/Pentagon deal. A lot of developers are evaluating the API for the first time. I've been building background agents on Claude for over a year — here's what's actually different, what's the same, and what will trip you up.</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,700 words</span>
+          <a href="switching-openai-to-claude-agents.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+      <!-- Post 26 -->
+      <div class="post-card">
+        <div class="post-card-tag">News / API Strategy</div>
+        <a href="anthropic-supply-chain-risk-developer.html">
+          <div class="post-card-title">The U.S. Government Called Anthropic a Supply-Chain Risk. Here's What It Means for Your API Key.</div>
+        </a>
+        <div class="post-card-excerpt">The Trump administration designated Anthropic a supply-chain risk and Anthropic is suing to reverse it. Every article covers the geopolitics. Here's the one question indie developers actually care about: is the Claude API safe to keep building on?</div>
+        <div class="post-meta">
+          <span>Fernando Fernandez</span>
+          <span class="post-meta-dot"></span>
+          <span>~8 min read</span>
+          <span class="post-meta-dot"></span>
+          <span>~1,650 words</span>
+          <a href="anthropic-supply-chain-risk-developer.html" class="post-read-link">Read →</a>
+        </div>
+      </div>
+
+    <!-- CTA -->
+    <div class="cta-strip">
+      <div class="cta-strip-text">
+        <div class="cta-strip-label">The Guide</div>
+        <div class="cta-strip-title">The full architecture in 8 chapters. Free.</div>
+        <div class="cta-strip-sub">Memory, cron jobs, monitoring, token optimization. Real config files in the $29 bundle.</div>
+      </div>
+      <div class="cta-strip-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-primary">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-secondary">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+  </script>
+</body>
+</html>

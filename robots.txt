@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://fernando-fernandez3.github.io/sitemap.xml

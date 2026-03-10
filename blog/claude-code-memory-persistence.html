@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Give Your AI Agent Memory That Persists Across Sessions — fernandOS Digital</title>
+  <meta name="description" content="Three markdown files, no database. Agents that remember across every session.">
+  <meta property="og:title" content="How to Give Your AI Agent Memory That Persists Across Sessions — fernandOS Digital">
+  <meta property="og:description" content="Three markdown files, no database. Agents that remember across every session.">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Give Your AI Agent Memory That Persists Across Sessions — fernandOS Digital">
+  <meta name="twitter:description" content="Three markdown files, no database. Agents that remember across every session.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    /* ─── Article Layout ─────────────────────────────────────── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ─── Sticky CTA Bar ─────────────────────────────────────── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sticky-cta-link {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--amber);
+      color: var(--bg);
+      text-align: center;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sticky-cta-link:hover { background: var(--amber-bright); color: var(--bg); }
+    .sticky-cta-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .sticky-cta-close:hover { color: var(--text-dim); }
+
+    /* ─── Prose Styles ───────────────────────────────────────── */
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 56px;
+      margin-bottom: 20px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+    .article-body h4 {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:first-child {
+      font-size: 1.1em;
+      color: var(--text);
+    }
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .article-body em {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body a {
+      color: var(--amber-glow);
+      border-bottom: 1px solid var(--amber-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .article-body a:hover {
+      color: var(--amber-bright);
+      border-color: var(--amber);
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .article-body ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .article-body ul li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .article-body ol {
+      counter-reset: item;
+    }
+    .article-body ol li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 10px;
+      counter-increment: item;
+      color: var(--text);
+    }
+    .article-body ol li::before {
+      content: counter(item) '.';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--amber-bright);
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px 28px;
+      overflow-x: auto;
+      margin: 0 0 28px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 28px 0;
+      padding: 16px 24px;
+      background: var(--amber-faint);
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body blockquote p { margin-bottom: 0; }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .article-body th {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .article-body td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .article-body tr:hover td { background: var(--bg-2); }
+
+    /* ─── Inline CTA Box ─────────────────────────────────────── */
+    .inline-cta {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 28px 32px;
+      margin: 48px 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Related Posts ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <!-- ─── Sticky Bundle CTA ─────────────────────────────────── -->
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <!-- ─── Article ───────────────────────────────────────────── -->
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Production AI</div>
+      <h1 class="article-title">How to Give Your AI Agent Memory That Persists Across Sessions</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>8 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>1,423 words</span>
+      </div>
+      <div class="article-byline">By Fernando Fernandez · Staff Support Engineer at Tesla, runs Claude Code daily for personal and work projects</div>
+    </header>
+
+    <div class="article-body">
+      <p>Every Claude Code session starts blank. The API is stateless by design, with no memory of previous conversations unless you build it yourself.</p>
+<p>That's fine. I'm not complaining about it. What I am saying is that if you want an agent that knows your name, your projects, and what you were working on last Tuesday, you have to build that layer. It doesn't come out of the box.</p>
+<p>This post is about how I built it, what I tried that didn't work, and the setup I actually run.</p>
+<hr />
+<h2>The Problem in Practice</h2>
+<p>Before I had a memory system, a typical Claude Code session started like this:</p>
+<p>I'd open the terminal, start a session, and spend the first few exchanges re-explaining context. "I'm a staff engineer at Tesla. I work in Python. My current project is a pool automation system that runs on Home Assistant. Last time we worked on the ESPHome config for the chlorine sensor, and we ran into a problem with..."</p>
+<p>Ten minutes of context-setting before I could get to the actual question.</p>
+<p>And that was just for projects I remembered to explain. Anything I'd figured out two weeks ago and hadn't written down was gone. The agent had no idea we'd solved that problem. We'd solve it again.</p>
+<p>Multiply that by daily use and it gets expensive in two ways: time and tokens.</p>
+<hr />
+<h2>Three Approaches I've Seen People Try</h2>
+<p><strong>1. Memory plugins and integrations.</strong> There are tools that bolt memory onto Claude. I've looked at them. The problem is they're platform-dependent, they add another thing to maintain, and they handle the data in ways you don't fully control. Not interested in that.</p>
+<p><strong>2. Long chat history / context stuffing.</strong> Paste the last five sessions into the context window. This works until it doesn't. The context window has a limit, history fills it fast, and half of what's in there isn't relevant anyway. It's also not searchable. You end up with a giant blob of text and no good way to find specific things in it.</p>
+<p><strong>3. File-based memory.</strong> This is what I use. The agent reads and writes plain text files. Simple, versionable, fast, and completely under my control.</p>
+<p>The file-based approach is what the rest of this post covers.</p>
+<hr />
+<h2>The Three-File System</h2>
+<p>My memory architecture has three files. Each one does a different job.</p>
+<p><strong>MEMORY.md</strong> is the long-term store. It holds things that matter across multiple days: decisions I've made, projects I'm working on, preferences, useful context that would take too long to re-establish. The agent reads this at the start of every session. It writes to it at the end of sessions where something worth keeping happened.</p>
+<p>The format is loose. Dated sections at the top for recent stuff, evergreen sections below for things that don't change much. Project notes, important decisions, reference info I look up regularly.</p>
+<p><strong>USER.md</strong> is my profile. Who I am, what I work on, what I care about. It doesn't change unless I change it. The agent reads it at startup, not to personalize responses in a creepy way, but because knowing the user context upfront means I don't have to re-explain it.</p>
+<p>Example of what's in mine: my job, my timezone, my preferred tools, my current active projects, things I'm interested in. Two pages, tops. The agent reads this once and it's loaded for the session.</p>
+<p><strong>AGENTS.md</strong> is the instruction file for the agent itself. How it should behave, what it should do at session start (read the other files), what its responsibilities are, how to handle edge cases. Each agent I run has its own AGENTS.md. My personal assistant agent has different instructions than my coding agent.</p>
+<p>Three files. That's the whole system at its core.</p>
+<hr />
+<h2>How the Agent Uses Them</h2>
+<p>At session start, the agent reads all three files. This happens automatically because AGENTS.md tells it to.</p>
+<p>During the session, the agent operates with that context loaded. It knows the projects, the history, the preferences. If something comes up that it should remember for next time, it notes it.</p>
+<p>At session end (or when something significant happens), the agent writes to MEMORY.md. A brief dated entry: what we worked on, what was decided, anything that would help future-me or future-agent understand what happened.</p>
+<p>Over time, MEMORY.md grows. That's expected. The daily notes are in <code>memory/YYYY-MM-DD.md</code> files, and MEMORY.md is the summarized, curated version that the agent actually reads each session. The daily notes are the raw archive.</p>
+<hr />
+<h2>How to Set It Up</h2>
+<p><strong>Step 1: Create the directory structure.</strong></p>
+<pre><code>workspace/
+  MEMORY.md
+  USER.md
+  AGENTS.md
+  memory/
+    2026-03-01.md
+    2026-03-02.md
+    ...
+</code></pre>
+<p><strong>Step 2: Write USER.md now.</strong></p>
+<p>Don't skip this. Spend 15 minutes writing out who you are, what you work on, what tools you use, what you're currently working on. This is the context you'd give someone if they were going to help you with your work for the next year.</p>
+<p>It doesn't have to be long. Mine is about 40 lines. The point is that the agent has this baseline without you having to explain it.</p>
+<p><strong>Step 3: Write your AGENTS.md.</strong></p>
+<p>The key instruction is: at the start of every session, read MEMORY.md, USER.md, and today's daily note (plus yesterday's if early in the day). After every meaningful session, write a brief entry to the daily note.</p>
+<p>The rest of AGENTS.md is about behavior: how you want the agent to communicate, what it should do vs. ask about, any standing preferences. This varies by agent type.</p>
+<p><strong>Step 4: Start MEMORY.md with something useful.</strong></p>
+<p>Don't leave it blank. Seed it with the context that would be most valuable for an agent to know. Your current projects, recent decisions, anything you'd want to explain to a new assistant on day one.</p>
+<p><strong>Step 5: Let it grow.</strong></p>
+<p>The agent writes to it. You occasionally review it and prune what's outdated. Once a week, spend five minutes cleaning up entries that no longer matter. That's it.</p>
+<hr />
+<h2>The Memory Maintenance Cron</h2>
+<p>There's one problem with file-based memory: it grows without bound. If you don't manage it, MEMORY.md eventually becomes the size of a novel and takes a while to load.</p>
+<p>The fix is a nightly memory maintenance cron. A scheduled task that runs every night, reads the daily notes from the last two weeks, compresses anything older than that into an archive, and keeps MEMORY.md under a target size (I use 10KB as a soft limit).</p>
+<p>This runs on Haiku, because compression is a simple read/write task. No generation required, just reorganization.</p>
+<p>The maintenance cron does three things:</p>
+<ol>
+<li>Compresses daily notes older than 14 days into <code>memory/archive/YYYY-MM.md</code> files (monthly archives)</li>
+<li>Trims MEMORY.md if it's grown beyond target size, preserving the most recent and most referenced entries</li>
+<li>Writes a brief report confirming it ran and what it compressed</li>
+</ol>
+<p>After running this for a month, the system is self-managing. Memory accumulates during active use, maintenance runs overnight, the summary file stays readable.</p>
+<hr />
+<h2>Why This Works Better Than the Alternatives</h2>
+<p>The file-based system has some properties that matter over time.</p>
+<p>It's versionable. If you're in a git repo, your memory files are in git. You can see exactly what the agent wrote, when, and why. If it writes something wrong, you can fix it.</p>
+<p>It's searchable. Plain text files are trivially searchable. <code>grep</code> works on them. If you want to know what you decided about X three months ago, you can find it.</p>
+<p>It's portable. These files work with any model, any tool, any interface. They're not locked to a specific plugin or platform. If you switch tools, the memory comes with you.</p>
+<p>It's auditable. The agent's memory of you is right there in a file you can read. Not locked in a black box you have to trust.</p>
+<p>The main downside: you have to set it up yourself. That's also the point. You control it.</p>
+<hr />
+<h2>The Bundle</h2>
+<p>The templates (USER.md, AGENTS.md, MEMORY.md with correct structure) are in the $29 bundle at https://fernando-fernandez3.github.io. Plus the memory maintenance cron script, configured and commented.</p>
+<p>The free guide at https://fernando-fernandez3.github.io covers the full setup across 8 chapters if you want the complete picture.</p>
+<hr />
+<p><em>I've been running this setup for several months. The biggest change wasn't having memory. It was not having to re-explain things I'd already figured out. That benefit accumulates over time.</em></p>
+    </div>
+
+    <!-- ─── Bottom CTA ───────────────────────────────────────── -->
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">What's Next</div>
+      <div class="inline-cta-title">The full guide is free. The config files aren't.</div>
+      <p>8-chapter free guide covers the complete architecture. The $29 bundle includes all the actual files: 10 cron configs, workspace templates, monitoring scripts, token dashboard.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <!-- ─── Related Posts ─────────────────────────────────────── -->
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        <a href="production-ai-agent-setup.html" class="related-card"><div class="related-card-tag">Architecture</div><div class="related-card-title">How to Build a Production AI Agent System</div></a>
+<a href="ai-agent-cron-jobs.html" class="related-card"><div class="related-card-tag">Cron & Scheduling</div><div class="related-card-title">How to Run AI Agents on Cron Jobs</div></a>
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Sticky CTA: show after 40% scroll
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>

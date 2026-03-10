@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ElevenLabs vs Kokoro: Which TTS Actually Works for AI Agents? — fernandOS Digital</title>
+  <meta name="description" content="Two TTS systems, same use case. Latency, cost, voice quality, and when to use each.">
+  <meta property="og:title" content="ElevenLabs vs Kokoro: Which TTS Actually Works for AI Agents? — fernandOS Digital">
+  <meta property="og:description" content="Two TTS systems, same use case. Latency, cost, voice quality, and when to use each.">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ElevenLabs vs Kokoro: Which TTS Actually Works for AI Agents? — fernandOS Digital">
+  <meta name="twitter:description" content="Two TTS systems, same use case. Latency, cost, voice quality, and when to use each.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    /* ─── Article Layout ─────────────────────────────────────── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ─── Sticky CTA Bar ─────────────────────────────────────── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sticky-cta-link {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--amber);
+      color: var(--bg);
+      text-align: center;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sticky-cta-link:hover { background: var(--amber-bright); color: var(--bg); }
+    .sticky-cta-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .sticky-cta-close:hover { color: var(--text-dim); }
+
+    /* ─── Prose Styles ───────────────────────────────────────── */
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 56px;
+      margin-bottom: 20px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+    .article-body h4 {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:first-child {
+      font-size: 1.1em;
+      color: var(--text);
+    }
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .article-body em {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body a {
+      color: var(--amber-glow);
+      border-bottom: 1px solid var(--amber-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .article-body a:hover {
+      color: var(--amber-bright);
+      border-color: var(--amber);
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .article-body ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .article-body ul li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .article-body ol {
+      counter-reset: item;
+    }
+    .article-body ol li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 10px;
+      counter-increment: item;
+      color: var(--text);
+    }
+    .article-body ol li::before {
+      content: counter(item) '.';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--amber-bright);
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px 28px;
+      overflow-x: auto;
+      margin: 0 0 28px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 28px 0;
+      padding: 16px 24px;
+      background: var(--amber-faint);
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body blockquote p { margin-bottom: 0; }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .article-body th {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .article-body td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .article-body tr:hover td { background: var(--bg-2); }
+
+    /* ─── Inline CTA Box ─────────────────────────────────────── */
+    .inline-cta {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 28px 32px;
+      margin: 48px 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Related Posts ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <!-- ─── Sticky Bundle CTA ─────────────────────────────────── -->
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <!-- ─── Article ───────────────────────────────────────────── -->
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Production AI</div>
+      <h1 class="article-title">ElevenLabs vs Kokoro: Which TTS Actually Works for AI Agents?</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>8 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>1,435 words</span>
+      </div>
+      <div class="article-byline">By Fernando Fernandez · runs 10+ AI cron jobs daily, including multilingual voice briefings</div>
+    </header>
+
+    <div class="article-body">
+      <p>I've broken both.</p>
+<p>ElevenLabs stopped me with rate limits in the middle of a Spanish lesson series. Kokoro wouldn't start because I'd missed a CUDA dependency. I've had cron jobs produce silent audio files, voice notes that played in Telegram as music instead of voice messages, and one very confused request from my wife asking why the agent was "speaking robot now."</p>
+<p>This post is what I know after getting through all of that. If you're adding voice output to your AI agent and can't decide between ElevenLabs and a local TTS model, this is the actual comparison: not the one the product landing pages give you.</p>
+<hr />
+<h2>First, Do You Need Voice at All?</h2>
+<p>Before picking a TTS provider, the real question is whether voice is the right output format for what you're building.</p>
+<p>I use voice output for two things: Spanish practice audio that I listen to on my phone during a run, and a morning briefing that plays while I'm doing something else. For everything else: JIRA summaries, task analysis, anything with data in it: I get a text message on Telegram.</p>
+<p>Voice is worse than text when the output has structure. If your agent is summarizing five tasks with priorities and due dates, a text message is scannable in two seconds. A voice note forces you to listen through the whole thing to find what matters. I learned this the hard way. The briefing I converted to audio first ended up going back to text.</p>
+<p>Voice is better when you want passive consumption. Running, cooking, driving. The agent delivers something and you absorb it without stopping what you're doing.</p>
+<p>If your use case is passive consumption and the content doesn't need to be referenced later, voice is worth setting up. If not, skip TTS and spend the time on something else.</p>
+<hr />
+<h2>The Two Options</h2>
+<p>Two realistic choices for getting text-to-speech into an AI agent setup:</p>
+<p><strong>ElevenLabs</strong>: cloud API, high quality, free tier exists, costs money at scale. Works for any language. Has a voice library with native speakers for dozens of languages. The multilingual model is genuinely good at non-English.</p>
+<p><strong>Kokoro</strong>: local model you run yourself. Free forever, runs on a GPU you already own. English-first (other voices exist but English is where it shines). Requires setup, a real machine to run on, and enough VRAM to be practical.</p>
+<p>There's no universal winner. The right answer depends on three things: what language you're generating, whether you have a GPU, and how many characters of audio you're generating per month.</p>
+<hr />
+<h2>Language: The Easiest Decision Variable</h2>
+<p>If you need anything other than English, use ElevenLabs.</p>
+<p>I use it for Spanish. The multilingual model (<code>eleven_multilingual_v2</code>) sounds like a native speaker. The difference between that and using an English-trained model on Spanish text is significant: English-trained voices on Spanish sound like someone reading phonetically from a script. Flat, slightly wrong stress patterns, occasionally embarrassing pronunciations.</p>
+<p>I learned this by trying it first. I used one of ElevenLabs' English voices on a Spanish lesson thinking it wouldn't matter that much. It mattered. I switched to Gaby (voice_id: <code>n4GNpJP6Y2Nd09pDtetA</code>) on the multilingual model and it sounded like an actual person.</p>
+<p>Kokoro's English voices are good. Its multilingual support is improving but English is where it's been most tested. If your agent speaks English, you have a real choice to make. If it doesn't, ElevenLabs is the answer and you can stop reading here.</p>
+<hr />
+<h2>Cost: The Math Is Simple</h2>
+<p>ElevenLabs pricing as of 2026:<br />
+- Free tier: 10,000 characters/month<br />
+- Starter ($5/month): 30,000 characters/month<br />
+- Creator ($22/month): 100,000 characters/month</p>
+<p>A typical voice note is 200-500 characters of input text. One sentence is roughly 60-100 characters.</p>
+<p>At 3 Spanish lessons per day with ~300 characters each: 900 chars/day × 30 days = 27,000 chars/month. That's right at the $5 Starter tier.</p>
+<p>At 10 English voice notes per day with ~400 characters each: 4,000 chars/day × 30 days = 120,000 chars/month. That's past the Creator tier ($22). That's when Kokoro starts making financial sense.</p>
+<p>The crossover point where Kokoro becomes cheaper: roughly 3,300 characters per day, if you already have a GPU. If you don't have a GPU (or you're on a laptop), Kokoro still works but it's slow enough that ElevenLabs is worth paying for.</p>
+<p>Kokoro's cost if you have an RTX 3090 or similar: basically zero. Electricity you're already paying for. GPU time on a card that would otherwise be idle.</p>
+<hr />
+<h2>The GPU Question</h2>
+<p>Kokoro runs on CPU. It also runs on CUDA (NVIDIA GPU) and MPS (Apple Silicon). CPU is slow, though: for a 200-word voice note, you're looking at 20-40 seconds on a decent CPU vs 2-3 seconds on a GPU.</p>
+<p>If you're running cron jobs, you probably don't care about 40 seconds. The cron runs at 6am and delivers to your phone by 6:00:40. Fine.</p>
+<p>But if you're doing this frequently or in a context where latency matters, you want GPU. I run Kokoro on my RTX 3090. Generation is fast enough that I don't think about it.</p>
+<p>The install is real work. You need CUDA set up properly, Python dependencies in order, and the model downloaded. My first run failed because of a mismatch between my CUDA version and a dependency. The second attempt worked.</p>
+<p>One thing I'd warn you about: Kokoro doesn't auto-start with my machine. I start it when I need it (<code>cd ~/workspace/kokoro-tts &amp;&amp; uv run python serve.py</code>). My cron jobs that use Kokoro check the health endpoint first and fall back to ElevenLabs if Kokoro isn't running. That fallback saved me several times in the first month.</p>
+<hr />
+<h2>The Hybrid Approach</h2>
+<p>I use both. ElevenLabs for Spanish. Kokoro for English.</p>
+<p>The routing logic is straightforward: detect what language the text is in, call the right provider. If Kokoro is down, fall back to ElevenLabs. The code bundle in the Voice AI Starter Kit has a <code>tts_router.py</code> that handles this.</p>
+<p>The reason this setup makes sense: Spanish audio is low volume (a few lessons per day), high quality requirement (I'm learning the language, accents matter), and multilingual capability is required. ElevenLabs at $5/month is fine for that.</p>
+<p>English audio is higher volume (multiple crons, daily briefings), English quality from Kokoro is good, and I have the GPU to run it. Kokoro at zero marginal cost makes sense.</p>
+<p>If you're starting out and don't want to manage two providers, ElevenLabs-only is a completely reasonable setup. The $5/month tier covers most personal agent workflows. Add Kokoro later if you hit the cost ceiling.</p>
+<hr />
+<h2>Delivery: One Gotcha You'll Run Into</h2>
+<p>When you send audio to Telegram, there's a difference between <code>sendAudio</code> and <code>sendVoice</code>.</p>
+<p><code>sendAudio</code> delivers as a music file. The player shows a waveform with forward/back controls, treats it like a song.</p>
+<p><code>sendVoice</code> delivers as a voice message. The circular play button, the way a voice memo looks. It's the right format for agent audio briefings.</p>
+<p>Kokoro outputs WAV. Telegram's <code>sendVoice</code> requires Opus (OGG container). You need an ffmpeg conversion step in between:</p>
+<pre><code class="language-bash">ffmpeg -y -i input.wav -c:a libopus output.opus
+</code></pre>
+<p>Then send the <code>.opus</code> file with <code>sendVoice</code>. If you skip this and send the WAV directly, Telegram will accept it as <code>sendAudio</code> and it'll look like a music file.</p>
+<p>ElevenLabs can output MP3. Same issue: you need ffmpeg to convert to Opus before <code>sendVoice</code>.</p>
+<p>The <code>telegram_voice.py</code> file in the code bundle handles this pipeline: audio bytes in, Opus voice note in Telegram out.</p>
+<hr />
+<h2>The Short Version</h2>
+<p>For most people starting out:</p>
+<ul>
+<li><strong>Non-English language needed</strong>: ElevenLabs, multilingual model, find a native voice in their library. $5/month.</li>
+<li><strong>English only, have a GPU, high volume</strong>: Kokoro. One-time setup effort, then free.</li>
+<li><strong>English only, no GPU, low volume</strong>: ElevenLabs Starter tier. $5/month, don't bother with Kokoro.</li>
+<li><strong>Want both languages and high volume</strong>: Hybrid routing. ElevenLabs for non-English, Kokoro for English.</li>
+</ul>
+<p>Voice output is one of those agent features that sounds more complicated than it is. Once it's wired in, it runs and you forget about it. The setup is the hard part.</p>
+<p>If you want the full setup: both providers, routing logic, Telegram delivery, and example cron configs: that's all in the <a href="https://fernando-fernandez3.github.io">Voice AI Starter Kit</a>.</p>
+<hr />
+<p><em>Fernando Fernandez is a Staff Support Engineer at Tesla and runs a production AI agent system for daily briefings, language learning, and family coordination. The fernandOS Digital guides are written from a working setup, not theory.</em></p>
+    </div>
+
+    <!-- ─── Bottom CTA ───────────────────────────────────────── -->
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">What's Next</div>
+      <div class="inline-cta-title">The full guide is free. The config files aren't.</div>
+      <p>8-chapter free guide covers the complete architecture. The $29 bundle includes all the actual files: 10 cron configs, workspace templates, monitoring scripts, token dashboard.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <!-- ─── Related Posts ─────────────────────────────────────── -->
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        <a href="claude-telegram-notifications.html" class="related-card"><div class="related-card-tag">Notifications</div><div class="related-card-title">Getting AI Agent Notifications on Telegram</div></a>
+<a href="ai-agent-daily-routine.html" class="related-card"><div class="related-card-tag">Real World</div><div class="related-card-title">What My 10 AI Cron Jobs Actually Do for Me Every Day</div></a>
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Sticky CTA: show after 40% scroll
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
