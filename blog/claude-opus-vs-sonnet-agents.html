@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>When Should You Upgrade to Opus? A Real Decision Guide for Agent Builders. — fernandOS Digital</title>
+  <meta name="description" content="Most agent builders default to Sonnet for everything. Here's when that's right, when to drop to Haiku, and when Opus actually earns its 5x cost.">
+  <meta property="og:title" content="When Should You Upgrade to Opus? A Real Decision Guide for Agent Builders. — fernandOS Digital">
+  <meta property="og:description" content="Most agent builders default to Sonnet for everything. Here's when that's right, when to drop to Haiku, and when Opus actually earns its 5x cost.">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="When Should You Upgrade to Opus? A Real Decision Guide for Agent Builders. — fernandOS Digital">
+  <meta name="twitter:description" content="Most agent builders default to Sonnet for everything. Here's when that's right, when to drop to Haiku, and when Opus actually earns its 5x cost.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Fira+Code:wght@300;400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #07070A;
+      --bg-2:        #0D0D12;
+      --bg-3:        #131318;
+      --amber:       #D4891A;
+      --amber-glow:  #E8A020;
+      --amber-bright:#FFC84A;
+      --amber-dim:   #3D2808;
+      --amber-faint: #1A1006;
+      --text:        #EDE8DC;
+      --text-dim:    #7A7264;
+      --text-muted:  #4A4640;
+      --border:      #1E1E24;
+      --border-amber:#2E1F08;
+      --green:       #3DBA6B;
+      --red:         #D45A4A;
+      --mono:        'Fira Code', monospace;
+      --sans:        'Syne', sans-serif;
+      --serif:       'Spectral', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--serif);
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--amber); color: var(--bg); }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.4;
+    }
+
+    a { color: var(--amber-glow); text-decoration: none; }
+    a:hover { color: var(--amber-bright); }
+
+    /* ─── Nav ────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(7,7,10,0.92);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--amber-glow);
+      letter-spacing: 0.08em;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo:hover { color: var(--amber-bright); }
+    .nav-logo-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,186,107,0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(61,186,107,0); }
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+    .nav-link:hover { color: var(--text); }
+    .nav-cta {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      padding: 9px 20px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    /* ─── Article Layout ─────────────────────────────────────── */
+    .article-wrap {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 120px 28px 100px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+    .article-header {
+      margin-bottom: 56px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+    .article-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .article-tag::before {
+      content: ''; display: block;
+      width: 24px; height: 1px; background: var(--amber);
+    }
+    .article-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .article-meta {
+      display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+    .article-meta-dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: var(--text-muted);
+    }
+    .article-byline {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      font-style: italic;
+      font-family: var(--serif);
+    }
+
+    /* ─── Sticky CTA Bar ─────────────────────────────────────── */
+    .sticky-cta {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-amber);
+      padding: 16px 20px;
+      max-width: 280px;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .sticky-cta.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sticky-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .sticky-cta-text {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .sticky-cta-link {
+      display: block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      background: var(--amber);
+      color: var(--bg);
+      text-align: center;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .sticky-cta-link:hover { background: var(--amber-bright); color: var(--bg); }
+    .sticky-cta-close {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      cursor: pointer;
+      background: none; border: none;
+      transition: color 0.2s;
+    }
+    .sticky-cta-close:hover { color: var(--text-dim); }
+
+    /* ─── Prose Styles ───────────────────────────────────────── */
+    .article-body h2 {
+      font-family: var(--sans);
+      font-size: clamp(20px, 2.5vw, 26px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 56px;
+      margin-bottom: 20px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    .article-body h3 {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 36px;
+      margin-bottom: 14px;
+    }
+    .article-body p {
+      margin-bottom: 24px;
+      color: var(--text);
+    }
+    .article-body p:first-child {
+      font-size: 1.1em;
+      color: var(--text);
+    }
+    .article-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .article-body em {
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body a {
+      color: var(--amber-glow);
+      border-bottom: 1px solid var(--amber-dim);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .article-body a:hover {
+      color: var(--amber-bright);
+      border-color: var(--amber);
+    }
+    .article-body ul, .article-body ol {
+      margin: 0 0 24px 0;
+      padding-left: 0;
+      list-style: none;
+    }
+    .article-body ul li {
+      position: relative;
+      padding-left: 22px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .article-body ul li::before {
+      content: '→';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .article-body ol {
+      counter-reset: item;
+    }
+    .article-body ol li {
+      position: relative;
+      padding-left: 32px;
+      margin-bottom: 10px;
+      counter-increment: item;
+      color: var(--text);
+    }
+    .article-body ol li::before {
+      content: counter(item) '.';
+      position: absolute; left: 0;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .article-body code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: var(--bg-3);
+      color: var(--amber-bright);
+      padding: 2px 7px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+    }
+    .article-body pre {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      padding: 24px 28px;
+      overflow-x: auto;
+      margin: 0 0 28px 0;
+      -webkit-overflow-scrolling: touch;
+    }
+    .article-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dim);
+    }
+    .article-body blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 28px 0;
+      padding: 16px 24px;
+      background: var(--amber-faint);
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .article-body blockquote p { margin-bottom: 0; }
+    .article-body hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 28px;
+      font-size: 15px;
+    }
+    .article-body th {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .article-body td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .article-body tr:hover td { background: var(--bg-2); }
+
+    /* ─── Inline CTA Box ─────────────────────────────────────── */
+    .inline-cta {
+      border: 1px solid var(--border-amber);
+      background: var(--amber-faint);
+      padding: 28px 32px;
+      margin: 48px 0;
+    }
+    .inline-cta-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .inline-cta-title {
+      font-family: var(--sans);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .inline-cta p {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+    .inline-cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-free {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      background: var(--amber-glow);
+      color: var(--bg);
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .btn-free:hover { background: var(--amber-bright); color: var(--bg); }
+    .btn-bundle {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 11px 22px;
+      border: 1px solid var(--amber);
+      color: var(--amber-bright);
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-bundle:hover { background: var(--amber); color: var(--bg); }
+
+    /* ─── Related Posts ───────────────────────────────────────── */
+    .related-section {
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .related-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .related-grid { grid-template-columns: 1fr; }
+    }
+    .related-card {
+      border: 1px solid var(--border);
+      padding: 20px 22px;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .related-card:hover {
+      border-color: var(--border-amber);
+      background: var(--bg-2);
+    }
+    .related-card-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+    .related-card-title {
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 28px;
+      text-align: center;
+    }
+    .footer-logo {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+    .footer-links {
+      display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    }
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .article-wrap { padding: 100px 20px 80px; }
+      .sticky-cta { bottom: 12px; right: 12px; max-width: calc(100vw - 24px); }
+      nav { padding: 16px 20px; }
+      .nav-right .nav-link { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Navigation ───────────────────────────────────────── -->
+  <nav id="nav">
+    <a href="https://fernando-fernandez3.github.io" class="nav-logo">
+      <span class="nav-logo-dot"></span>
+      fernandOS
+    </a>
+    <div class="nav-right">
+      <a href="https://fernando-fernandez3.github.io/blog" class="nav-link">← All Posts</a>
+      <a href="https://fernando-fernandez3.github.io" class="nav-cta">Free Guide</a>
+    </div>
+  </nav>
+
+  <!-- ─── Sticky Bundle CTA ─────────────────────────────────── -->
+  <div class="sticky-cta" id="stickyCta">
+    <button class="sticky-cta-close" id="ctaClose" aria-label="Close">×</button>
+    <div class="sticky-cta-label">The Config Bundle</div>
+    <div class="sticky-cta-text">Skip the file-building. 10 cron configs, templates, dashboard.</div>
+    <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="sticky-cta-link">Get the Bundle — $29</a>
+  </div>
+
+  <!-- ─── Article ───────────────────────────────────────────── -->
+  <article class="article-wrap">
+
+    <header class="article-header">
+      <div class="article-tag">fernandOS — Model Selection</div>
+      <h1 class="article-title">When Should You Upgrade to Opus? A Real Decision Guide for Agent Builders.</h1>
+      <div class="article-meta">
+        <span>Fernando Fernandez</span>
+        <span class="article-meta-dot"></span>
+        <span>8 min read</span>
+        <span class="article-meta-dot"></span>
+        <span>March 10, 2026</span>
+      </div>
+      <div class="article-byline">10 agents running in production. Here's what each one actually runs on, and why — with a decision matrix for every agent type.</div>
+    </header>
+
+    <div class="article-body">
+
+<p>The question I get asked more than any other in the r/ClaudeAI comments: "Should I be using Opus instead of Sonnet?"</p>
+
+<p>The honest answer: probably not, for most of your agents. But there are specific tasks where Sonnet will fail you in ways that cost real time to debug, and Opus just handles them. The trick is knowing which tasks those are before you waste two weeks on the wrong model.</p>
+
+<p>This isn't about benchmarks. SWE-bench scores don't tell you what happens when your agent runs at 2am and has to synthesize contradictory search results into a coherent briefing. Real task behavior does.</p>
+
+<p>Here's how I think about it after running 10 production agents for months.</p>
+
+<hr />
+
+<h2>The Mistake Most People Make</h2>
+
+<p>The default move is Sonnet for everything. I did this. Most people do. Sonnet is the safe middle option — good output, reasonable cost, doesn't embarrass you.</p>
+
+<p>The problem is that "safe" doesn't mean "right." It means you're paying Sonnet prices for tasks that Haiku handles identically, and you're running into subtle quality failures on tasks that actually needed Opus.</p>
+
+<p>Both of those cost money. The first costs you literally — you're overpaying per run. The second costs you in time — you're staring at output wondering why your summarization agent keeps burying the lead.</p>
+
+<p>Model routing isn't complicated. It's just asking, per task, "what does this actually require?"</p>
+
+<h2>Tier Breakdown: What Each Model Actually Does Differently</h2>
+
+<p>Before the decision guide, a quick reality check on what the tiers are.</p>
+
+<p>As of March 2026, the relevant models and rough API pricing:</p>
+<ul>
+  <li><strong>Haiku</strong> — ~$0.25/$1.25 per million tokens (input/output). Fastest, cheapest.</li>
+  <li><strong>Sonnet</strong> — ~$3/$15 per million tokens. The workhorse.</li>
+  <li><strong>Opus</strong> — ~$15/$75 per million tokens. 5x Sonnet on output. Slow.</li>
+</ul>
+
+<p>The performance gap between tiers isn't uniform. It depends on task type. Haiku closes the gap significantly on structured tasks. Opus separates significantly on open-ended synthesis where quality variance is expensive.</p>
+
+<h2>Category 1: Haiku Is Enough</h2>
+
+<p>These are tasks with clear inputs, defined output structure, and no requirement for judgment.</p>
+
+<p><strong>Good fits:</strong></p>
+<ul>
+  <li>Health checks (read a file, check a value, send an alert)</li>
+  <li>Simple reformatting (take a JSON blob, output a formatted Telegram message)</li>
+  <li>Classification with tight categories (is this email urgent/not urgent/spam)</li>
+  <li>Data extraction from structured sources (parse a CSV, pull three fields, write to SQLite)</li>
+  <li>Short summarization where the source is already clean</li>
+</ul>
+
+<p>I run four of my ten agents on Haiku. The health checker, the email screener classifier, the weather formatter, and the daily task extractor. None of them have had a quality regression from being on Haiku. They just run faster and cost less.</p>
+
+<p><strong>Signs you've put the wrong task on Haiku:</strong></p>
+<ul>
+  <li>Output occasionally drops required fields without telling you</li>
+  <li>Classification accuracy feels slightly off but hard to pinpoint</li>
+  <li>Long documents get shallow treatment that misses the actual point</li>
+</ul>
+
+<p>If you're seeing those, move up to Sonnet. Don't move to Opus yet.</p>
+
+<h2>Category 2: Sonnet Is the Right Call</h2>
+
+<p>Sonnet is where most actual agent work lives. Tasks that require following multi-step instructions reliably, producing consistent output quality across varied inputs, and handling moderate ambiguity without falling apart.</p>
+
+<p><strong>Good fits:</strong></p>
+<ul>
+  <li>Writing that will actually be read (briefings, summaries, draft emails)</li>
+  <li>Multi-step pipelines with several dependent tasks</li>
+  <li>Classification where the categories have nuance</li>
+  <li>Code review for straightforward issues</li>
+  <li>Research synthesis from 2-3 sources where they mostly agree</li>
+  <li>Following complex instruction sets reliably</li>
+</ul>
+
+<p>Six of my ten agents run on Sonnet. The morning briefing agent, the research agent, the QA reviewer, the social monitoring agent, the weekly summary writer, and the memory consolidator. For all of them, Sonnet produces output I'd want to read and takes instructions without drift.</p>
+
+<p>The briefing agent is the important one to note. It runs daily and I actually consume its output. That's a real quality bar. Sonnet clears it consistently. I tested Haiku on it briefly — the briefings were shallower, missed context that mattered, and occasionally restructured information in ways that buried the important stuff. Back to Sonnet.</p>
+
+<h2>Category 3: When Opus Earns Its Cost</h2>
+
+<p>Opus earns its cost in a narrow but real category: tasks where quality variance is expensive and the task genuinely requires holding multiple conflicting pieces of information while making a judgment call.</p>
+
+<p><strong>Good fits:</strong></p>
+<ul>
+  <li>Deep research synthesis where sources disagree or are nuanced</li>
+  <li>Long-document analysis where catching the right signals matters</li>
+  <li>Complex code architecture decisions, not just review</li>
+  <li>Tasks where you need the agent to push back or flag problems, not just comply</li>
+  <li>Multi-turn reasoning chains where earlier mistakes compound</li>
+</ul>
+
+<p>The critical filter: <strong>would a quality miss cost you significant time to catch and fix?</strong> If yes, Opus might be worth it. If the output gets reviewed anyway before it matters, Sonnet is probably fine.</p>
+
+<p>I run zero agents on Opus in my regular cron setup. The one place I've used it is on-demand research tasks — when I'm asking a one-off question that requires synthesizing 10+ sources and I need a real answer, not a competent summary. For automated cron, Sonnet handles everything I've thrown at it.</p>
+
+<p>But I work in tech support engineering, not investment research or legal analysis. If your agents are doing work where quality errors have real consequences, Opus becomes more defensible.</p>
+
+<h2>The Decision Matrix</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Task type</th>
+      <th>Start here</th>
+      <th>Upgrade if...</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Simple extraction / formatting</td><td>Haiku</td><td>Output drops required fields</td></tr>
+    <tr><td>Tight classification (3-5 categories)</td><td>Haiku</td><td>Accuracy feels inconsistent</td></tr>
+    <tr><td>Briefings / summaries you'll read</td><td>Sonnet</td><td>It's burying the lead, consistently</td></tr>
+    <tr><td>Complex research synthesis</td><td>Sonnet</td><td>Sources conflict and Sonnet can't navigate it</td></tr>
+    <tr><td>Code review</td><td>Sonnet</td><td>Missing issues with real consequences</td></tr>
+    <tr><td>Open-ended judgment calls</td><td>Sonnet</td><td>Quality variance is unacceptable for your use case</td></tr>
+    <tr><td>Production-critical synthesis</td><td>Opus</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<p>The workflow: <strong>start on Sonnet, try downgrading to Haiku, only upgrade to Opus if you're seeing specific symptoms and quality matters enough to justify 5x cost.</strong></p>
+
+<p>Don't start on Opus trying to optimize later. You'll never downgrade. I've watched too many people in the comments run their entire setup on Opus because they were worried about quality, spend way too much, and never benchmark whether Sonnet would have been fine.</p>
+
+<h2>What Happens When You Get It Wrong</h2>
+
+<p><strong>Under-tier (Haiku when Sonnet was needed):</strong> subtle quality degradation that's hard to attribute. Your briefing feels slightly off. Your classification is almost right. You spend time wondering if your prompts are bad when the model is the issue.</p>
+
+<p><strong>Over-tier (Opus when Sonnet was needed):</strong> you pay 5x more and get the same output you'd have gotten from Sonnet. Opus doesn't make simple tasks better. It makes hard tasks more reliable. Simple tasks are already reliable on Sonnet.</p>
+
+<p>The diagnostic move: if you're not sure whether a task needs Sonnet or Opus, run the same prompt on both with the same input 5 times. Look at the variance in output. If Sonnet's variance is acceptable, stay on Sonnet. If Opus consistently produces noticeably better judgment calls, it might be worth it.</p>
+
+<h2>The Migration Pattern That Works</h2>
+
+<p>When you're setting up a new agent, this is the sequence that wastes the least money:</p>
+
+<ol>
+  <li>Start on Sonnet</li>
+  <li>After a week of real runs, review the outputs critically</li>
+  <li>If outputs are clearly meeting your bar: test Haiku on 20 runs. Compare. If Haiku is fine, switch.</li>
+  <li>If outputs are NOT meeting your bar: identify whether it's a model issue or a prompt issue. Fix the prompt first. If the prompt is solid and the model keeps missing, test Opus on 20 runs. If Opus fixes it, decide if the cost is worth it.</li>
+</ol>
+
+<p>The "fix the prompt first" step matters. A lot of what people think is a model capability gap is actually a prompt issue. Opus will sometimes power through a bad prompt and give you a decent answer. Sonnet and Haiku will fail more visibly. That's actually useful feedback. Don't chase model upgrades as a substitute for prompt work.</p>
+
+<h2>What My 10 Agents Actually Use</h2>
+
+<p>Since I've been vague about specifics, here's my actual setup as of March 2026.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Agent</th>
+      <th>Model</th>
+      <th>Why</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Morning briefing (6am)</td><td>Sonnet</td><td>Reads 8 sources, writes 300-word summary I actually read</td></tr>
+    <tr><td>Email screener (every 15m)</td><td>Haiku</td><td>Tight classification: urgent / normal / spam</td></tr>
+    <tr><td>Research agent (weekly)</td><td>Sonnet</td><td>3-5 articles, needs real synthesis not just a summary</td></tr>
+    <tr><td>Health checker (every 30m)</td><td>Haiku</td><td>Reads timestamps and error flags, sends Telegram alert</td></tr>
+    <tr><td>QA reviewer (after briefing)</td><td>Sonnet</td><td>Reviews briefing output before it hits Telegram</td></tr>
+    <tr><td>Memory consolidator (nightly)</td><td>Sonnet</td><td>Extracts important items from daily logs into long-term file</td></tr>
+    <tr><td>Weather formatter (daily)</td><td>Haiku</td><td>Pulls weather data, formats one Telegram message</td></tr>
+    <tr><td>Calendar digest (daily)</td><td>Sonnet</td><td>Writes "what matters today" from calendar events</td></tr>
+    <tr><td>Social monitor (2x daily)</td><td>Sonnet</td><td>Scans RSS feeds, filters for relevant technical news</td></tr>
+    <tr><td>Task extractor (every 6h)</td><td>Haiku</td><td>Parses notes file, extracts action items into formatted list</td></tr>
+  </tbody>
+</table>
+
+<p>Total API spend: roughly $40/month. If I ran all ten on Opus, that would be around $200/month for identical output quality on the Haiku tasks and marginally better output on maybe 2-3 Sonnet tasks. That math doesn't work for me. It might work for you if the outputs drive decisions that matter more than the cost.</p>
+
+<hr />
+
+<h2>The Short Version</h2>
+
+<p>Default to Sonnet. Test Haiku on everything after the first week. Only go to Opus for tasks where quality variance is genuinely expensive and you've verified that's a model issue, not a prompt issue.</p>
+
+<p>Most builders I talk to use tier 1 and tier 2. Almost nobody needs tier 3 in their automated cron setup.</p>
+
+<p>If you're still putting together your first agents, the guide covers the full architecture: model routing, memory, monitoring, and the cron setup that makes it run reliably. The free version has everything you need to start.</p>
+
+    </div>
+
+    <!-- ─── Bottom CTA ───────────────────────────────────────── -->
+    <div class="inline-cta" style="margin-top: 64px;">
+      <div class="inline-cta-label">The Full Architecture</div>
+      <div class="inline-cta-title">Model routing is chapter 3. The free guide covers all eight.</div>
+      <p>Covers memory, cron setup, monitoring, agent coordination, and the token dashboard I use to track spend across all ten agents. The $29 bundle includes all the actual config files.</p>
+      <div class="inline-cta-actions">
+        <a href="https://fernando-fernandez3.github.io" class="btn-free">Read the Free Guide</a>
+        <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent" class="btn-bundle">Get the Bundle — $29</a>
+      </div>
+    </div>
+
+    <!-- ─── Related Posts ─────────────────────────────────────── -->
+    <section class="related-section">
+      <div class="related-label">More from the guide</div>
+      <div class="related-grid">
+        <a href="claude-api-cost-reduction.html" class="related-card">
+          <div class="related-card-tag">Cost Optimization</div>
+          <div class="related-card-title">How I Cut My Claude API Costs by 60% With Model Routing</div>
+        </a>
+        <a href="production-ai-agent-cost.html" class="related-card">
+          <div class="related-card-tag">Cost Breakdown</div>
+          <div class="related-card-title">What Does It Actually Cost to Run a Production AI Agent?</div>
+        </a>
+      </div>
+    </section>
+
+  </article>
+
+  <!-- ─── Footer ───────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-logo">fernandOS Digital</div>
+    <div class="footer-links">
+      <a href="https://fernando-fernandez3.github.io">Free Guide</a>
+      <a href="https://fernando-fernandez3.github.io/blog">Blog</a>
+      <a href="https://2507138417784.gumroad.com/l/ship-your-ai-agent">$29 Bundle</a>
+    </div>
+  </footer>
+
+  <script>
+    // Scrolled nav
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // Sticky CTA: show after 40% scroll
+    const stickyCta = document.getElementById('stickyCta');
+    const ctaClose = document.getElementById('ctaClose');
+    let ctaDismissed = false;
+    window.addEventListener('scroll', () => {
+      const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      if (!ctaDismissed && pct > 0.4) {
+        stickyCta.classList.add('visible');
+      }
+    });
+    ctaClose.addEventListener('click', () => {
+      ctaDismissed = true;
+      stickyCta.classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
