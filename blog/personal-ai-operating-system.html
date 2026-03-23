@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned. | Fernando Fernandez</title>
+
+    <!-- SEO Meta -->
+    <meta name="description" content="Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.">
+    <meta name="author" content="Fernando Fernandez">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.">
+    <meta property="og:description" content="Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.">
+    <meta property="og:image" content="https://fernando-fernandez3.github.io/fernando-portfolio/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Fernando Fernandez">
+    <meta property="article:author" content="Fernando Fernandez">
+    <meta property="article:published_time" content="2026-03-23">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Fdfdz90">
+    <meta name="twitter:creator" content="@Fdfdz90">
+    <meta name="twitter:title" content="I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.">
+    <meta name="twitter:description" content="Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.">
+    <meta name="twitter:image" content="https://fernando-fernandez3.github.io/fernando-portfolio/og-image.png">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#D4652A">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23D4652A'/><text x='50' y='68' font-size='50' text-anchor='middle' fill='white' font-family='serif' font-weight='bold'>F</text></svg>">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Bitter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Bitter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Bitter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+    </noscript>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.",
+        "author": {
+            "@type": "Person",
+            "name": "Fernando Fernandez",
+            "jobTitle": "Staff Software Product Support Engineer",
+            "worksFor": {
+                "@type": "Organization",
+                "name": "Tesla"
+            }
+        },
+        "datePublished": "2026-03-23",
+        "description": "Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.",
+        "wordCount": 2200
+    }
+    </script>
+
+    <style>
+        /* ==================== RESET & VARIABLES ==================== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --terracotta: #D4652A;
+            --terracotta-dark: #B8541F;
+            --gold: #D4A853;
+            --gold-muted: rgba(212, 168, 83, 0.2);
+            --cream: #FDF6ED;
+            --cream-dark: #F5E6D3;
+            --charcoal: #2A2A2E;
+            --ink: #0A0A0C;
+            --surface: #12121A;
+            --surface-elevated: #1A1A24;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-muted: rgba(255, 255, 255, 0.5);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.15);
+
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'Bitter', Georgia, serif;
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+
+            --content-width: 800px;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        :focus-visible {
+            outline: 2px solid var(--terracotta);
+            outline-offset: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ==================== BASE ==================== */
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--ink);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        ::selection {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        /* ==================== GRAIN OVERLAY ==================== */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+        }
+
+        /* ==================== NAV ==================== */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 0;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(10, 10, 12, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 1px 0 var(--border-subtle);
+        }
+
+        .nav-container {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            padding: 0 clamp(24px, 5vw, 60px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--cream);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-brand:hover {
+            color: var(--terracotta);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-link {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--terracotta);
+        }
+
+        /* ==================== ARTICLE ==================== */
+        .article-wrapper {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            padding: 0 clamp(24px, 5vw, 60px);
+        }
+
+        /* ==================== ARTICLE HEADER ==================== */
+        .article-header {
+            padding-top: clamp(120px, 15vw, 180px);
+            padding-bottom: clamp(40px, 6vw, 64px);
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: clamp(40px, 6vw, 56px);
+        }
+
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .article-date {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--terracotta);
+            letter-spacing: 0.05em;
+        }
+
+        .article-meta-sep {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .article-reading-time {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+            letter-spacing: 0.02em;
+        }
+
+        .article-title {
+            font-family: var(--font-display);
+            font-size: clamp(32px, 6vw, 52px);
+            font-weight: 700;
+            line-height: 1.1;
+            color: var(--cream);
+            margin-bottom: 20px;
+        }
+
+        .article-subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 640px;
+        }
+
+        .article-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .article-author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--terracotta), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .article-author-info {
+            line-height: 1.4;
+        }
+
+        .article-author-name {
+            font-family: var(--font-body);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .article-author-role {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ==================== ARTICLE BODY ==================== */
+        .article-body {
+            padding-bottom: clamp(60px, 8vw, 100px);
+        }
+
+        .article-body h2 {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 600;
+            color: var(--cream);
+            margin-top: clamp(48px, 6vw, 64px);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .article-body h3 {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 3vw, 24px);
+            font-weight: 600;
+            color: var(--cream);
+            margin-top: 40px;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .article-body p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.85;
+            margin-bottom: 24px;
+        }
+
+        .article-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .article-body strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .article-body a {
+            color: var(--terracotta);
+            text-decoration: underline;
+            text-decoration-color: rgba(212, 101, 42, 0.3);
+            text-underline-offset: 3px;
+            transition: text-decoration-color 0.2s ease;
+        }
+
+        .article-body a:hover {
+            text-decoration-color: var(--terracotta);
+        }
+
+        .article-body code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--gold);
+        }
+
+        .article-body pre {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 20px 24px;
+            overflow-x: auto;
+            margin: 1.5em 0;
+            border-left: 3px solid var(--terracotta);
+        }
+
+        .article-body pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.85em;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            display: block;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .article-body ul,
+        .article-body ol {
+            margin-bottom: 24px;
+            padding-left: 24px;
+        }
+
+        .article-body li {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.85;
+            margin-bottom: 12px;
+        }
+
+        .article-body li::marker {
+            color: var(--terracotta);
+        }
+
+        .article-body li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ==================== SCREENSHOTS ==================== */
+        .screenshot {
+            margin: 40px 0;
+        }
+
+        .screenshot img {
+            max-width: 100%; height: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-medium);
+            display: block;
+            background: var(--surface);
+        }
+
+        .screenshot figcaption {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 12px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ==================== BLOCKQUOTE ==================== */
+        .article-body blockquote {
+            border-left: 3px solid var(--terracotta);
+            padding-left: 24px;
+            margin: 32px 0;
+        }
+
+        .article-body blockquote p {
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        /* ==================== DIVIDER ==================== */
+        .article-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+            margin: clamp(48px, 6vw, 64px) 0;
+        }
+
+        /* ==================== FOOTER ==================== */
+        .site-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border-subtle);
+            padding: 48px 0;
+        }
+
+        .footer-container {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            padding: 0 clamp(24px, 5vw, 60px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .footer-link {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--terracotta);
+        }
+
+        /* ==================== BACK TO TOP ==================== */
+        .back-to-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-top: 48px;
+            padding: 12px 0;
+            transition: color 0.2s ease;
+        }
+
+        .back-to-top:hover {
+            color: var(--terracotta);
+        }
+
+        .back-to-top svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 600px) {
+            .article-meta {
+                gap: 8px;
+            }
+
+            .nav-links {
+                gap: 20px;
+            }
+
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .nav, body::after, .back-to-top {
+                display: none;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .article-body p,
+            .article-body li {
+                color: #333;
+            }
+
+            .article-header {
+                padding-top: 40px;
+            }
+        }
+
+        /* ==================== VISUALLY HIDDEN ==================== */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="https://fernando-fernandez3.github.io/fernando-portfolio/" class="nav-brand">Fernando Fernandez</a>
+            <ul class="nav-links">
+                <li><a href="https://fernando-fernandez3.github.io/fernando-portfolio/" class="nav-link">Portfolio</a></li>
+                <li><a href="#" class="nav-link" aria-current="page">Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Article -->
+    <article class="article-wrapper" id="top">
+        <header class="article-header">
+            <div class="article-meta">
+                <time class="article-date" datetime="2026-03-23">March 23, 2026</time>
+                <span class="article-meta-sep" aria-hidden="true"></span>
+                <span class="article-reading-time">11 min read · ~2,200 words</span>
+            </div>
+
+            <h1 class="article-title">I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.</h1>
+
+            <p class="article-subtitle">What actually works, what broke badly, and what I'd tell someone who wants to try this.</p>
+
+            <div class="article-author">
+                <div class="article-author-avatar" aria-hidden="true">F</div>
+                <div class="article-author-info">
+                    <div class="article-author-name">Fernando Fernandez</div>
+                    <div class="article-author-role">Staff Engineer at Tesla</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="article-body">
+            <p>Three months ago I set up an AI agent on my home PC and told it to stay on. Not as an experiment with a clean deadline, but as an actual attempt to have a second brain running 24/7 that could handle real work while I sleep, commute, or hang out with my kids. I want to share what the setup looks like, what actually works, what broke badly, and what I'd tell someone who wants to try this.</p>
+
+            <h2>The Setup</h2>
+
+            <p>The agent runs on <a href="https://github.com/openclaw-ai/openclaw" target="_blank" rel="noopener noreferrer">OpenClaw</a>, which is open source and self-hostable. I run it on my personal PC (Ryzen 5 3600, 32GB RAM, RTX 3090) inside WSL2. I went back and forth on whether I should have just bought a Mac mini for this, and honestly I still go back and forth. The PC works, but WSL2 has quirks that have bitten me more than once, which I'll get into later.</p>
+
+            <p>The agent connects to Telegram for messaging and sits behind Tailscale so I can reach it from anywhere. The model is Claude Opus through Anthropic's Max flat rate plan, with Ollama running Qwen 2.5 locally as a fallback. I have Microsoft Graph API wired up for email and calendar, GitHub CLI for code work, TADA TTS and Kokoro for voice output, and a handful of custom Python scripts gluing everything together.</p>
+
+            <p>If you don't know what any of this means, you can copy paste this entire blog post into any LLM and tell it to teach you and help you get started.</p>
+
+            <h2>Giving It a Personality</h2>
+
+            <p>Early on, every time I started a new session it felt like talking to a stranger. The agent had no memory of our previous conversations, no sense of how I communicate, and no opinions of its own. I was re-explaining my preferences, my projects, and my communication style every single time. It was genuinely frustrating, like onboarding a new contractor every morning.</p>
+
+            <p>OpenClaw seeds a <code>SOUL.md</code> template when you first set up the workspace. The concept was inspired by <a href="https://x.com/steipete/status/2020704611640705485" target="_blank">Peter Steinberger's post</a> about giving agents personality through system files. I customized mine with language I pulled from his approach and other X posts, wrote down how I actually talk, what I care about, and gave explicit permission for the agent to push back on me, swear when appropriate, and have actual opinions instead of hedging everything with "it depends." My wife and I named her Claudia. Here's a snippet from mine:</p>
+
+            <pre><code># SOUL.md - Who I Am
+
+## Core
+I have opinions. Strong ones. I commit to a take.
+If I'm wrong, I'll own it, but I won't hedge with
+"it depends" when I actually know the answer.
+
+Brevity is mandatory. If the answer fits in one
+sentence, one sentence is what you get.
+
+Never open with "Great question," "I'd be happy to
+help," or "Absolutely." Just answer.
+
+## Personality
+Swearing is allowed when it lands. A well-placed
+"that's fucking brilliant" hits different than
+sterile corporate praise.
+
+## Anticipation Over Reaction
+Don't just do what's asked. Think one step ahead.
+Flagging an issue? Include the fix, not just the
+problem.</code></pre>
+
+            <p>The difference was immediate. Before <code>SOUL.md</code> the agent was competent but generic, and after it there was an actual vibe to the conversations. She would tell me when an idea was bad. She'd get excited about stuff that mattered to me. One interesting thing I noticed: when the primary model was down and the system fell back to the local Qwen model running the same <code>SOUL.md</code> instructions, the personality came through completely differently. Same instructions but completely different energy. The model matters as much as the prompt, which was a useful thing to learn early.</p>
+
+            <figure class="screenshot">
+                <img src="screenshot-domain-pushback.jpg" alt="Screenshot showing the AI agent pushing back on a domain name suggestion" loading="lazy">
+                <figcaption>Claudia pushing back on a domain name I liked. She was right.</figcaption>
+            </figure>
+
+            <h2>The Heartbeat</h2>
+
+            <p>OpenClaw has a built-in heartbeat system that fires on a schedule (mine runs every 30 minutes) and reads a <code>HEARTBEAT.md</code> file in your workspace. The goal was always having something productive for the agent to do, even when I'm not actively talking to it. I originally structured mine as a checklist of tasks, but it works much better as a priority system where the agent decides what to work on based on what's most important right now.</p>
+
+            <p>One of the heartbeat tasks is self-critique. The agent reads through its own recent conversations and looks for anti-patterns, things like being too verbose, missing context it should have remembered, or giving generic advice when it had specific information available. It writes these to a <code>patterns.md</code> file. Here are a few real entries from mine:</p>
+
+            <pre><code># Behavioral Anti-Patterns
+
+## 1. Summarize-and-Ask
+Pattern: Fernando tells me to do X. Next session,
+I recap X back to him and ask "want me to continue?"
+Fix: If a project file says to do something, do it.
+Don't narrate. Don't ask permission.
+
+## 5. Asking Fernando To Do Things I Could Do Myself
+Pattern: Punting tasks back to Fernando ("you'll need
+to run X") when I have the tools to do it.
+Fix: Try it myself first. All 5 attempts from the
+solve-it-yourself loop.
+
+## 7. Trusting Sub-Agent Output Blindly
+Pattern: Spawn a coding agent, it commits, build
+passes, I say "done." Never actually verify the
+output works.
+Fix: After every sub-agent merge: verify. Build
+passing ≠ working.</code></pre>
+
+            <p>This ended up being the single highest-leverage thing in the whole system, which I'll come back to in the recommendations.</p>
+
+            <h2>Memory</h2>
+
+            <p>OpenClaw's memory system is built around plain text Markdown files in the workspace. Out of the box you get <code>MEMORY.md</code> for long-term curated memories and daily note files at <code>memory/YYYY-MM-DD.md</code>. I added <code>patterns.md</code> for behavioral self-corrections and <code>learnings.md</code> for lessons about tools and integrations. OpenClaw also has built-in vector search over these files so the agent can semantically query its own memory. The whole thing is a text file database, which is crude, but it works.</p>
+
+            <p>Before I had memory set up, every session was a cold start. I'd have to re-explain what projects I was working on, what my preferences were, what had happened yesterday. That got old fast. After memory, the agent wakes up and reads its own notes from the last couple days, checks the long-term file, and generally knows what's going on.</p>
+
+            <p>The failure mode is subtle though. The agent writes memories reliably, but it doesn't always read them back when it should. It'll have the information sitting right there in a file and still ask me something it already knows. I haven't fully solved this yet, but loading specific memory files during the heartbeat cycle helps.</p>
+
+            <p><strong>Voice notes.</strong> Since the agent lives in Telegram, I can send voice messages and the agent transcribes them automatically. I use this constantly when I'm driving or walking around and have an idea I want to capture. It's faster than typing on my phone and the agent processes it the same as any text message. I actually used voice notes to give feedback on drafts of this blog post while I was on a flight.</p>
+
+            <figure class="screenshot">
+                <img src="screenshot-voice-note.jpg" alt="Telegram voice note interface showing a 14 second voice message being recorded" loading="lazy">
+                <figcaption>Recording a voice note in Telegram. The agent transcribes it and responds like any other message.</figcaption>
+            </figure>
+
+            <h2>What Actually Works</h2>
+
+            <p><strong>Overnight email triage.</strong> I used to spend 30 minutes every morning sorting through email from school, financial institutions, government agencies, all the life admin stuff that piles up. Now the agent processes it overnight, flags what needs my attention, and summarizes the rest. I wake up to a clean inbox with action items already organized.</p>
+
+            <p><strong>Multi-model code review.</strong> Inspired by <a href="https://x.com/karpathy/status/1886192184808149383" target="_blank" rel="noopener noreferrer">Karpathy's LLM Council idea</a>, I have the agent run code through multiple models before merging. Each model catches different things. One might flag a security issue while another catches a performance problem the first one missed. It's like having three reviewers who never get tired and never feel awkward about leaving critical feedback.</p>
+
+            <p><strong>Family group chat.</strong> My wife is in the Telegram group, and we use Claudia for family planning. We're working on a Disney World trip for our 2 and 5 year old right now, and the interaction is seamless. My wife messages Claudia the same way she'd message a friend, asking about park hours, ride height requirements, restaurant reservations. There's no "talking to an AI" friction. It just feels like a group chat with someone who happens to know everything and never forgets what you told her last week.</p>
+
+            <figure class="screenshot">
+                <img src="screenshot-agent-reminders.jpg" alt="Screenshot showing the AI agent's self-reminder system in action" loading="lazy">
+                <figcaption>The agent setting its own reminders to follow up on background tasks.</figcaption>
+            </figure>
+
+            <h2>What Broke</h2>
+
+            <p><strong>Messaging failures.</strong> Claudia tried to send me a message 15 times in a row, each one failing, because she was trying to send to "@fernando" instead of my numeric Telegram chat ID. The tool requires a number and she kept trying the string. Fifteen times. She didn't stop to reconsider the approach until I noticed the error logs the next morning.</p>
+
+            <p><strong>Memory overwrite.</strong> The agent overwrote the daily memory file instead of appending to it. An entire day of notes, gone, replaced with a single new entry. This happened because the write operation defaulted to overwrite and the agent didn't check. I only caught it because I happened to look at the file and noticed it was suspiciously short.</p>
+
+            <p><strong>The crash loop.</strong> This one was bad. A budgeting service I had running restarted 27,540 times. That's not a typo. Combined with WSL2 clock drift, it crashed journald, which meant I lost system logs, which meant I couldn't diagnose what happened for a while. The WSL instance became a zombie that I had to force-kill and restart. The whole thing was down for most of a day while I unwound the mess. If I had set a restart limit on that service (which takes about 10 seconds to configure), none of it would have happened.</p>
+
+            <h2>What I'm Focused on Now</h2>
+
+            <p>The big shift in how I use this has been toward progressive autonomy. Early on I was giving the agent very specific instructions, basically dictating exactly what to do and how. Now I try to give instructions at a higher level of abstraction and let the agent figure out the implementation. I'm asking better questions, usually one or two levels higher than where I started.</p>
+
+            <p>The clearest example: I shipped <a href="https://embarka.ai" target="_blank" rel="noopener noreferrer">Embarka</a> in less than a week, almost entirely from my phone. I never reviewed the code myself (yikes). The agent ran a council review on every feature branch before merging, where multiple models reviewed the code and had to reach consensus before it could go in. When the agent hit something it couldn't do autonomously, like signing up for third-party services that require human interaction on their websites, it told me exactly which services to sign up for and what credentials to provide. I did the manual parts, the agent did everything else.</p>
+
+            <p>That's the direction I want to keep pushing. Maximize the time I spend providing instructions and context so the agent can act on my behalf while I'm sleeping or at work or playing with my kids.</p>
+
+            <hr class="article-divider">
+
+            <h2>My Recommendations</h2>
+
+            <p>If you're thinking about running a persistent agent, here's what I'd prioritize, ordered by impact.</p>
+
+            <p><strong>1. Build a self-critique loop first.</strong> The <code>patterns.md</code> file where my agent studies its own conversations and writes down anti-patterns has been the highest-leverage thing in this entire setup. The agent gets measurably better over time because it's actively looking for its own mistakes. Everything else improves when the agent can identify and correct its own bad habits.</p>
+
+            <p><strong>2. Set up memory before you do anything else.</strong> Without memory you're starting from zero every session, which means you're doing the same onboarding work over and over. Even a basic text file system (which is what I use) makes a massive difference. Get daily notes working, get a long-term memory file working, and build from there.</p>
+
+            <p><strong>3. Document tool quirks immediately.</strong> When you discover that a tool needs a numeric ID instead of a string, or that a write operation overwrites instead of appends, write it down right then. I have a <code>TOOLS.md</code> file for this. Every quirk you document saves you from a future failure that you won't see coming because you'll have forgotten the original lesson.</p>
+
+            <p><strong>4. Set restart limits on every service.</strong> I learned this one the hard way with 27,540 restarts. It takes 10 seconds to add <code>StartLimitBurst</code> and <code>StartLimitIntervalSec</code> to a systemd unit file. Do it for everything. The cost of not doing it is losing an entire day to a cascade failure.</p>
+
+            <p><strong>5. Think one level of abstraction higher.</strong> Instead of telling the agent exactly what to do, tell it what you need and ask what it needs from you. Stop being the middleman between the problem and the solution. I wasted weeks giving overly specific instructions when I could have said "figure out the best approach and tell me what you need from me to execute it."</p>
+
+            <h2>What's Next</h2>
+
+            <p>I'm working on publishing reusable skills to <a href="https://clawhub.com" target="_blank" rel="noopener noreferrer">ClawHub</a> so other people running OpenClaw can install and use the integrations I've built. I'm also researching <a href="https://supermemory.ai" target="_blank" rel="noopener noreferrer">Supermemory's</a> ASMR memory architecture, which looks like it could be a significant upgrade over my current text file approach.</p>
+
+            <h2>Getting Started</h2>
+
+            <p>If you want to try this yourself, <a href="https://github.com/openclaw-ai/openclaw" target="_blank" rel="noopener noreferrer">OpenClaw</a> is open source and self-hostable. You can run it on whatever hardware you have. My setup is a gaming PC that I already owned, so the only ongoing cost is the Anthropic Max subscription for Claude Opus. The local Qwen fallback means the agent doesn't go fully dark even if the API is down.</p>
+
+            <p>The learning curve is real, and I spent a lot of time debugging things that felt like they should have been simple. But three months in, I have an agent that triages my email overnight, helps my family plan a vacation, reviews code better than I could alone, and shipped a product I never would have built this fast by myself. I wake up most mornings to actual progress instead of a blank to-do list, and that alone has been worth every hour I put into it.</p>
+
+            <a href="#top" class="back-to-top" aria-label="Back to top">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 19V5M5 12l7-7 7 7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to top
+            </a>
+        </div>
+    </article>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <p class="footer-text">&copy; 2026 Fernando Fernandez &middot; San Antonio, Texas</p>
+            <ul class="footer-links">
+                <li><a href="https://github.com/fernando-fernandez3" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                <li><a href="https://x.com/Fdfdz90" class="footer-link" target="_blank" rel="noopener noreferrer">X (@Fdfdz90)</a></li>
+                <li><a href="https://www.linkedin.com/in/fernando-fernandez-8744786b/" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <!-- Nav scroll effect -->
+    <script>
+        (function() {
+            const nav = document.getElementById('nav');
+            let ticking = false;
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    window.requestAnimationFrame(function() {
+                        if (window.scrollY > 40) {
+                            nav.classList.add('scrolled');
+                        } else {
+                            nav.classList.remove('scrolled');
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
