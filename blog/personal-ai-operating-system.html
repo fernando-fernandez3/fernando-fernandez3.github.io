@@ -14,7 +14,7 @@
     <meta property="og:type" content="article">
     <meta property="og:title" content="I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.">
     <meta property="og:description" content="Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.">
-    <meta property="og:image" content="https://fernando-fernandez3.github.io/fernando-portfolio/og-image.png">
+    <meta property="og:image" content="https://fernando-fernandez3.github.io/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="Fernando Fernandez">
@@ -27,7 +27,7 @@
     <meta name="twitter:creator" content="@Fdfdz90">
     <meta name="twitter:title" content="I've Been Running a Persistent AI Agent for 3 Months. Here's What I Learned.">
     <meta name="twitter:description" content="Three months of running a 24/7 AI agent on my home PC. What actually works, what broke badly, and what I'd tell someone who wants to try this.">
-    <meta name="twitter:image" content="https://fernando-fernandez3.github.io/fernando-portfolio/og-image.png">
+    <meta name="twitter:image" content="https://fernando-fernandez3.github.io/og-image.png">
 
     <!-- Theme Color -->
     <meta name="theme-color" content="#D4652A">
@@ -257,6 +257,23 @@
             line-height: 1.1;
             color: var(--cream);
             margin-bottom: 20px;
+        }
+
+        .article-update {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border: 1px solid var(--border, rgba(127,127,127,.25));
+            border-radius: 8px;
+            font-size: 15px;
+            color: var(--text-secondary);
+            max-width: 640px;
+        }
+
+        .article-update a {
+            color: var(--terracotta);
+            text-decoration: underline;
+            text-decoration-color: rgba(212, 101, 42, 0.3);
+            text-underline-offset: 3px;
         }
 
         .article-subtitle {
@@ -575,9 +592,9 @@
     <!-- Navigation -->
     <nav class="nav" id="nav" aria-label="Main navigation">
         <div class="nav-container">
-            <a href="https://fernando-fernandez3.github.io/fernando-portfolio/" class="nav-brand">Fernando Fernandez</a>
+            <a href="https://fernando-fernandez3.github.io/" class="nav-brand">Fernando Fernandez</a>
             <ul class="nav-links">
-                <li><a href="https://fernando-fernandez3.github.io/fernando-portfolio/" class="nav-link">Portfolio</a></li>
+                <li><a href="https://fernando-fernandez3.github.io/" class="nav-link">Portfolio</a></li>
                 <li><a href="#" class="nav-link" aria-current="page">Blog</a></li>
             </ul>
         </div>
@@ -596,11 +613,13 @@
 
             <p class="article-subtitle">What actually works, what broke badly, and what I'd tell someone who wants to try this.</p>
 
+            <p class="article-update"><strong>Update, October 2026:</strong> I've since moved this setup from OpenClaw to <a href="https://hermes-agent.nousresearch.com" target="_blank" rel="noopener noreferrer">Hermes</a>. Embarka now also runs automated tests on every change and has been through security audits. The lessons below still hold.</p>
+
             <div class="article-author">
                 <div class="article-author-avatar" aria-hidden="true">F</div>
                 <div class="article-author-info">
                     <div class="article-author-name">Fernando Fernandez</div>
-                    <div class="article-author-role">Staff Engineer at Tesla</div>
+                    <div class="article-author-role">Staff Software Product Support Engineer at Tesla</div>
                 </div>
             </div>
         </header>
@@ -721,7 +740,7 @@ passing ≠ working.</code></pre>
 
             <p>The big shift in how I use this has been toward progressive autonomy. Early on I was giving the agent very specific instructions, basically dictating exactly what to do and how. Now I try to give instructions at a higher level of abstraction and let the agent figure out the implementation. I'm asking better questions, usually one or two levels higher than where I started.</p>
 
-            <p>The clearest example: I shipped <a href="https://embarka.ai" target="_blank" rel="noopener noreferrer">Embarka</a> in less than a week, almost entirely from my phone. I never reviewed the code myself (yikes). The agent ran a council review on every feature branch before merging, where multiple models reviewed the code and had to reach consensus before it could go in. When the agent hit something it couldn't do autonomously, like signing up for third-party services that require human interaction on their websites, it told me exactly which services to sign up for and what credentials to provide. I did the manual parts, the agent did everything else.</p>
+            <p>The clearest example: I shipped <a href="https://embarka.ai" target="_blank" rel="noopener noreferrer">Embarka</a> in less than a week, almost entirely from my phone. Instead of reading every line myself, I had the agent run a council review on every feature branch before merging, where multiple models reviewed the code and had to reach consensus before it could go in. When the agent hit something it couldn't do autonomously, like signing up for third-party services that require human interaction on their websites, it told me exactly which services to sign up for and what credentials to provide. I did the manual parts, the agent did everything else.</p>
 
             <p>That's the direction I want to keep pushing. Maximize the time I spend providing instructions and context so the agent can act on my behalf while I'm sleeping or at work or playing with my kids.</p>
 
